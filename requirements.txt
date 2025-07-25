@@ -1,30 +1,21 @@
 # Real Estate Investment Analyzer - Render Deployment
-# Lightweight dependencies for faster builds
-
-# Core MCP Framework (optional for web-only deployment)
-# mcp[cli]==1.0.0
+# Optimized for Render build environment with Gemini support
 
 # Web Framework
 flask==3.0.0
 jinja2==3.1.2
 
-# HTTP and API clients
-httpx==0.26.0
+# HTTP client (pure Python)
 requests==2.31.0
 
-# AI Integration
-google-generativeai==0.3.2
-
-# Data processing (lightweight alternatives)
-# Using built-in calculations instead of pandas/numpy for faster builds
-# pandas>=2.2.0
-# numpy>=1.26.0
-
-# Data validation
-pydantic==2.5.2
+# AI Integration - Gemini (MANDATORY - using newer version for better compatibility)
+google-generativeai>=0.8.0
 
 # Environment management
 python-dotenv==1.0.0
+
+# Data validation (required for Gemini)
+pydantic>=2.0.0
 
 # Production server
 gunicorn==21.2.0

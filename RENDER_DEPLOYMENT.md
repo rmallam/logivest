@@ -1,4 +1,18 @@
-# Render Secret File Deployment Guide
+# Render Deployment Guide for Real Estate Investment Analyzer
+
+## Progressive Build Strategy
+This application uses a robust multi-stage build process to ensure deployment success:
+
+1. **Primary Build**: Full feature set with Gemini AI support (`requirements.txt`)
+2. **Fallback Build**: Core functionality if AI packages fail (`requirements-minimal.txt`)
+3. **Graceful Degradation**: App works even without AI features
+
+## Features Available
+- ✅ Complete real estate calculation engine
+- ✅ Rent-to-EMI analysis for Australian market
+- ✅ Responsive web interface 
+- ✅ Property valuation tools
+- ⚠️ Gemini AI insights (environment dependent)
 
 ## Setting up Gemini API Key as Secret File in Render
 
@@ -8,13 +22,18 @@
 2. Replace `your-actual-gemini-api-key-here` with your real Gemini API key
 3. **DO NOT commit this file to git** (it's already in .gitignore)
 
-### 2. Deploy to Render with Secret File:
+2. **Deploy to Render with Multi-Stage Build**:
 
 1. **Create Web Service** in Render Dashboard:
    - Connect your GitHub repository: `rmallam/logivest`
    - **Environment**: Python 3
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `python web_interface/app.py`
+   - **Build Command**: *Leave blank* (uses render.yaml configuration)
+   - **Start Command**: *Leave blank* (uses render.yaml configuration)
+
+2. **Advanced Build Process** (handled automatically):
+   - Primary attempt: Install all packages including Gemini AI
+   - Fallback: Use minimal requirements if AI packages fail
+   - Result: App deploys successfully regardless of package availability
 
 2. **Add Secret Files** in Render:
    - Go to your service dashboard
@@ -42,6 +61,31 @@ If you prefer environment variables instead, set:
 For local development, you can either:
 - Set environment variable: `export GEMINI_API_KEY=your-key`
 - Or create local `gemini_api_key.txt` file (git ignored)
+
+## Troubleshooting Build Issues
+
+### If Deployment Fails:
+1. **Check Build Logs**: Look for specific package installation errors
+2. **Fallback Option**: Manually set build command to `pip install -r requirements-minimal.txt`
+3. **AI Features**: App will automatically disable AI if packages unavailable
+
+### Manual Fallback Deployment:
+If automatic build fails, override in Render dashboard:
+- **Build Command**: `pip install -r requirements-minimal.txt`
+- **Start Command**: `python web_interface/app.py`
+
+### Testing Locally:
+```bash
+# Test full build
+pip install -r requirements.txt
+python web_interface/app.py
+
+# Test minimal build  
+pip install -r requirements-minimal.txt
+python web_interface/app.py
+```
+
+Visit http://localhost:5001 to verify functionality.
 
 ## Example Secret File Content:
 ```

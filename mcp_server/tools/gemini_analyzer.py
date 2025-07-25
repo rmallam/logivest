@@ -3,10 +3,18 @@
 import os
 import logging
 from typing import Dict, Any, Optional
-import google.generativeai as genai
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
+
+# Try to import Gemini with fallback
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Gemini AI not available: {e}")
+    GEMINI_AVAILABLE = False
+    genai = None
 
 @dataclass
 class PropertyInsight:
@@ -51,6 +59,12 @@ class GeminiPropertyAnalyzer:
             except Exception as e:
                 self.logger.warning(f"Could not read API key from file: {e}")
         
+        if not GEMINI_AVAILABLE:
+            self.model = None
+            self.has_api_key = False
+            self.logger.warning("Google Generative AI package not available. AI analysis will be unavailable.")
+            return
+            
         if api_key and api_key != 'your-actual-gemini-api-key-here':
             genai.configure(api_key=api_key)
             self.model = genai.GenerativeModel('gemini-1.5-flash')

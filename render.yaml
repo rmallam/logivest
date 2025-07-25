@@ -2,11 +2,22 @@ services:
   - type: web
     name: real-estate-analyzer
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      pip install --upgrade pip wheel setuptools
+      # Try to install with precompiled wheels first
+      pip install --only-binary=:all: flask jinja2 requests python-dotenv gunicorn
+      # Try to install Gemini AI (may fail on some environments)
+      pip install google-generativeai || echo "Warning: Gemini AI not available, continuing without AI features"
+      # Install any remaining requirements
+      pip install -r requirements.txt || pip install -r requirements-minimal.txt
     startCommand: python web_interface/app.py
     envVars:
       - key: WEB_INTERFACE_PORT
         value: 5001
       - key: FLASK_ENV
         value: production
+      - key: PIP_NO_CACHE_DIR
+        value: "1"
+      - key: SETUPTOOLS_USE_DISTUTILS
+        value: stdlib
     healthCheckPath: /
