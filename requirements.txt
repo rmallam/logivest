@@ -1,6 +1,7 @@
 # Real Est# HTTP and API clients
 aiohttp==3.9.1
-requests==2.31.0Investment Analyzer MCP Server
+requests==2.31.0
+#Investment Analyzer MCP Server
 # Core MCP and web dependencies
 
 # MCP Framework
