@@ -1,8 +1,8 @@
-# Real Estate Investment Analyzer MCP Server
-# Core MCP and web dependencies
+# Real Estate Investment Analyzer - Render Deployment
+# Lightweight dependencies for faster builds
 
-# MCP Framework
-mcp[cli]==1.0.0
+# Core MCP Framework (optional for web-only deployment)
+# mcp[cli]==1.0.0
 
 # Web Framework
 flask==3.0.0
@@ -10,15 +10,15 @@ jinja2==3.1.2
 
 # HTTP and API clients
 httpx==0.26.0
-aiohttp==3.9.1
 requests==2.31.0
 
 # AI Integration
 google-generativeai==0.3.2
 
-# Data processing
-pandas==2.1.4
-numpy==1.26.2
+# Data processing (lightweight alternatives)
+# Using built-in calculations instead of pandas/numpy for faster builds
+# pandas>=2.2.0
+# numpy>=1.26.0
 
 # Data validation
 pydantic==2.5.2
@@ -26,12 +26,5 @@ pydantic==2.5.2
 # Environment management
 python-dotenv==1.0.0
 
-# Web scraping (for future API integration)
-beautifulsoup4==4.12.2
-
-# Development and server
-uvicorn==0.24.0
-fastapi==0.104.1
-
-# Optional: Production server
+# Production server
 gunicorn==21.2.0
