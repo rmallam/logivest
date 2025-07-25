@@ -11,11 +11,18 @@ requests==2.31.0
 # AI Integration - Gemini (MANDATORY - using newer version for better compatibility)
 google-generativeai>=0.8.0
 
+# MCP Server Dependencies
+mcp>=1.0.0
+fastmcp>=0.9.0
+
 # Environment management
 python-dotenv==1.0.0
 
 # Data validation (required for Gemini)
 pydantic>=2.0.0
+
+# HTTP client for async operations
+httpx>=0.25.0
 
 # Production server
 gunicorn==21.2.0
