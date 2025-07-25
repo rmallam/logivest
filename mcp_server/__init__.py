@@ -8,8 +8,20 @@ Provides tools for property valuation, rental yield calculation, and investment 
 from typing import Any, Dict, List, Optional
 import asyncio
 import logging
-from mcp.server.fastmcp import FastMCP
-from mcp.types import Tool
+
+# Try importing FastMCP from the fastmcp package first, then fallback to mcp
+try:
+    from fastmcp import FastMCP
+    from mcp.types import Tool
+except ImportError:
+    try:
+        from mcp.server.fastmcp import FastMCP
+        from mcp.types import Tool
+    except ImportError as e:
+        logging.warning(f"MCP not available: {e}")
+        FastMCP = None
+        Tool = None
+
 import json
 
 # Configure logging to stderr to avoid stdout pollution
