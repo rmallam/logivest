@@ -1,28 +1,37 @@
-# Real Estate Investment Analyzer - Render Deployment
-# Optimized for Render build environment with Gemini support
+# Real Estate Investment Analyzer MCP Server
+# Core MCP and web dependencies
+
+# MCP Framework
+mcp[cli]==1.0.0
 
 # Web Framework
 flask==3.0.0
 jinja2==3.1.2
 
-# HTTP client (pure Python)
+# HTTP and API clients
+httpx==0.26.0
+aiohttp==3.9.1
 requests==2.31.0
 
-# AI Integration - Gemini (MANDATORY - using newer version for better compatibility)
-google-generativeai>=0.8.0
+# AI Integration
+google-generativeai==0.3.2
 
-# MCP Server Dependencies
-mcp>=1.0.0
-fastmcp>=0.9.0
+# Data processing
+pandas==2.1.4
+numpy==1.26.2
+
+# Data validation
+pydantic==2.5.2
 
 # Environment management
 python-dotenv==1.0.0
 
-# Data validation (required for Gemini)
-pydantic>=2.0.0
+# Web scraping (for future API integration)
+beautifulsoup4==4.12.2
 
-# HTTP client for async operations
-httpx>=0.25.0
+# Development and server
+uvicorn==0.24.0
+fastapi==0.104.1
 
-# Production server
+# Optional: Production server
 gunicorn==21.2.0
