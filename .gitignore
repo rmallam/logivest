@@ -153,6 +153,7 @@ Thumbs.db
 *.key
 *.pem
 *.p12
+gemini_api_key.txt
 
 # Temporary files
 *.tmp

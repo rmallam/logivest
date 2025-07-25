@@ -28,20 +28,37 @@ class PropertyInsight:
 class GeminiPropertyAnalyzer:
     """Gemini AI integration for comprehensive property analysis"""
     
-    def __init__(self, api_key: str = None):
-        """Initialize Gemini analyzer with API key"""
-        self.api_key = api_key or os.getenv('GEMINI_API_KEY')
-        if not self.api_key:
-            logger.warning("Gemini API key not provided. Property insights will be limited.")
-            self.model = None
-        else:
+    def __init__(self):
+        """Initialize the Gemini Property Analyzer"""
+        self.logger = logging.getLogger(__name__)
+        
+        # Try to get API key from multiple sources (environment variable or secret file)
+        api_key = os.getenv('GEMINI_API_KEY')
+        
+        if not api_key:
+            # Try to read from secret file (for Render deployment)
             try:
-                genai.configure(api_key=self.api_key)
-                self.model = genai.GenerativeModel('gemini-1.5-flash')
-                logger.info("Gemini AI initialized successfully")
+                key_file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'gemini_api_key.txt')
+                if os.path.exists(key_file_path):
+                    with open(key_file_path, 'r') as f:
+                        content = f.read().strip()
+                        # Skip comment lines and get the actual key
+                        for line in content.split('\n'):
+                            line = line.strip()
+                            if line and not line.startswith('#'):
+                                api_key = line
+                                break
             except Exception as e:
-                logger.error(f"Failed to initialize Gemini AI: {str(e)}")
-                self.model = None
+                self.logger.warning(f"Could not read API key from file: {e}")
+        
+        if api_key and api_key != 'your-actual-gemini-api-key-here':
+            genai.configure(api_key=api_key)
+            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            self.has_api_key = True
+        else:
+            self.model = None
+            self.has_api_key = False
+            self.logger.warning("Gemini API key not found. AI analysis will be unavailable.")
     
     def analyze_property(self, address: str, budget: float = None) -> PropertyInsight:
         """Get comprehensive property analysis from Gemini AI"""

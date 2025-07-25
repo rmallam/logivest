@@ -346,9 +346,10 @@ def api_market_data(location):
 
 
 if __name__ == '__main__':
-    port = int(os.getenv('WEB_INTERFACE_PORT', 5001))
+    # Use PORT environment variable for Render deployment, fallback to 5001 for local
+    port = int(os.getenv('PORT', os.getenv('WEB_INTERFACE_PORT', 5001)))
     print("🏠 Real Estate Investment Analyzer Web Interface")
     print(f"🌐 Starting web server at http://localhost:{port}")
     print("📊 Access the application to analyze properties and markets")
     
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=False, host='0.0.0.0', port=port)

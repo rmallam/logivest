@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: real-estate-analyzer
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python web_interface/app.py
+    envVars:
+      - key: WEB_INTERFACE_PORT
+        value: 5001
+      - key: FLASK_ENV
+        value: production
+    healthCheckPath: /
