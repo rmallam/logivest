@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="container-fluid px-3">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-8 mx-auto text-center text-lg-start">
+                <h1 class="h2 h1-md fw-bold mb-3 mb-md-4">
+                    <i class="fas fa-chart-line me-2"></i> Smart Real Estate Investment Analysis
+                </h1>
+                <p class="mb-3 mb-md-4">
+                    Discover profitable rental properties with our AI-powered analysis. 
+                    Get instant insights on rental yields, cash flow, and investment potential.
+                </p>
+                <div class="d-grid d-md-flex gap-2 gap-md-3 justify-content-md-center justify-content-lg-start">
+                    <a href="#analyze-property" class="btn btn-light btn-lg">
+                        <i class="fas fa-search me-2"></i> Analyze Property
+                    </a>
+                    <a href="#find-opportunities" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-map-marker-alt me-2"></i> Find Opportunities
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <i class="fas fa-building" style="font-size: 10rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid py-4 py-md-5 px-3">
+    <!-- Key Features -->
+    <div class="row mb-4 mb-md-5">
+        <div class="col-12 text-center mb-3 mb-md-4">
+            <h2 class="h3 h2-md fw-bold">Why Choose Our Platform?</h2>
+            <p class="text-muted">Comprehensive analysis tools for smart real estate investments</p>
+        </div>
+        <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-4">
+            <div class="card feature-card h-100 text-center p-3 p-md-4">
+                <div class="card-body">
+                    <i class="fas fa-calculator fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Advanced Calculations</h5>
+                    <p class="card-text">Rental yields, cash flow, ROI, and loan-to-rent ratios calculated instantly.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card h-100 text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-chart-area fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Market Analysis</h5>
+                    <p class="card-text">Comprehensive market insights and investment recommendations.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card h-100 text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-target fa-3x text-warning mb-3"></i>
+                    <h5 class="card-title">Smart Suggestions</h5>
+                    <p class="card-text">AI-powered property recommendations based on your criteria.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property Analysis Section -->
+    <div class="row mb-5" id="analyze-property">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-home"></i> Analyze Specific Property</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('analyze_property') }}">
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Property Address</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   placeholder="e.g., 123 Collins St, Melbourne VIC" required>
+                            <div class="form-text">Enter full address for accurate analysis</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="budget" class="form-label">Maximum Budget (Optional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="budget" name="budget" 
+                                       placeholder="500000" min="0" step="1000">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search"></i> Analyze Property
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-map-marker-alt"></i> Find Investment Opportunities</h4>
+                </div>
+                <div class="card-body" id="find-opportunities">
+                    <form method="POST" action="{{ url_for('search_properties') }}">
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="e.g., Melbourne VIC or 3000" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="max_budget" class="form-label">Max Budget</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="max_budget" name="max_budget" 
+                                               placeholder="500000" required min="0" step="1000">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="min_yield" class="form-label">Min Yield %</label>
+                                    <input type="number" class="form-control" id="min_yield" name="min_yield" 
+                                           value="4.0" min="0" max="20" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="property_type" class="form-label">Property Type</label>
+                            <select class="form-select" id="property_type" name="property_type">
+                                <option value="any">Any Type</option>
+                                <option value="house">House</option>
+                                <option value="condo">Condo</option>
+                                <option value="townhouse">Townhouse</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            <i class="fas fa-search"></i> Find Opportunities
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Market Links -->
+    <div class="row">
+        <div class="col-12 text-center mb-4">
+            <h3>Popular Markets</h3>
+            <p class="text-muted">Quick access to market analysis for top investment locations</p>
+        </div>
+        <div class="col-md-12 text-center">
+            <div class="btn-group flex-wrap" role="group">
+                <a href="{{ url_for('market_analysis', location='Austin, TX') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> Austin, TX
+                </a>
+                <a href="{{ url_for('market_analysis', location='Denver, CO') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> Denver, CO
+                </a>
+                <a href="{{ url_for('market_analysis', location='Atlanta, GA') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> Atlanta, GA
+                </a>
+                <a href="{{ url_for('market_analysis', location='Phoenix, AZ') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> Phoenix, AZ
+                </a>
+                <a href="{{ url_for('market_analysis', location='Tampa, FL') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-line"></i> Tampa, FL
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,284 @@
+{% extends "layout.html" %}
+
+{% block title %}Property Analysis - {{ address }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Property Analysis</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-home text-primary"></i> Property Analysis
+            </h1>
+            <p class="lead text-muted">{{ address }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Property Details -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Property Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p><strong>Type:</strong> {{ analysis.property_type.title() }}</p>
+                            <p><strong>Bedrooms:</strong> {{ analysis.bedrooms }}</p>
+                            <p><strong>Bathrooms:</strong> {{ analysis.bathrooms }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p><strong>Square Feet:</strong> {{ "{:,}".format(analysis.sqft) }}</p>
+                            <p><strong>Est. Value:</strong> ${{ "{:,.0f}".format(analysis.estimated_value) }}</p>
+                            <p><strong>Est. Rent:</strong> ${{ "{:,.0f}".format(analysis.estimated_rent) }}/month</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Score -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-star"></i> Investment Score</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="display-1 fw-bold 
+                        {% if analysis.investment_score >= 8 %}text-success
+                        {% elif analysis.investment_score >= 6 %}text-warning
+                        {% else %}text-danger{% endif %}">
+                        {{ analysis.investment_score }}/10
+                    </div>
+                    <p class="mt-3">{{ analysis.recommendation }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Yield Calculations -->
+        <div class="col-lg-4 mb-4">
+            <div class="card metric-card h-100">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">
+                        <i class="fas fa-percentage"></i> Rental Yields
+                    </h6>
+                    <div class="mb-2">
+                        <small class="text-muted">Gross Yield</small>
+                        <div class="h4 {% if analysis.gross_yield >= 8 %}positive{% elif analysis.gross_yield >= 6 %}warning{% else %}negative{% endif %}">
+                            {{ "%.2f"|format(analysis.gross_yield) }}%
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Net Yield</small>
+                        <div class="h5 {% if analysis.net_yield >= 6 %}positive{% elif analysis.net_yield >= 4 %}warning{% else %}negative{% endif %}">
+                            {{ "%.2f"|format(analysis.net_yield) }}%
+                        </div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Cap Rate</small>
+                        <div class="h5 {% if analysis.cap_rate >= 6 %}positive{% elif analysis.cap_rate >= 4 %}warning{% else %}negative{% endif %}">
+                            {{ "%.2f"|format(analysis.cap_rate) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cash Flow Analysis -->
+        <div class="col-lg-4 mb-4">
+            <div class="card metric-card h-100">
+                <div class="card-body">
+                    <h6 class="card-title text-success">
+                        <i class="fas fa-money-bill-wave"></i> Cash Flow
+                    </h6>
+                    <div class="mb-2">
+                        <small class="text-muted">Monthly Cash Flow</small>
+                        <div class="h4 {% if analysis.monthly_cashflow >= 0 %}positive{% else %}negative{% endif %}">
+                            ${{ "{:,.0f}".format(analysis.monthly_cashflow) }}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Annual Cash Flow</small>
+                        <div class="h5 {% if analysis.annual_cashflow >= 0 %}positive{% else %}negative{% endif %}">
+                            ${{ "{:,.0f}".format(analysis.annual_cashflow) }}
+                        </div>
+                    </div>
+                    <div>
+                        <small class="text-muted">Cash-on-Cash Return</small>
+                        <div class="h5 {% if analysis.cash_return >= 8 %}positive{% elif analysis.cash_return >= 4 %}warning{% else %}negative{% endif %}">
+                            {{ "%.2f"|format(analysis.cash_return) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Timeline -->
+        <div class="col-lg-4 mb-4">
+            <div class="card metric-card h-100">
+                <div class="card-body">
+                    <h6 class="card-title text-info">
+                        <i class="fas fa-clock"></i> Investment Timeline
+                    </h6>
+                    <div class="mb-3">
+                        <small class="text-muted">Break-even Period</small>
+                        <div class="h4">
+                            {% if analysis.breakeven_months < 999 %}
+                                {{ analysis.breakeven_months }} months
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="progress mb-2" style="height: 20px;">
+                        {% set progress = min((analysis.breakeven_months / 120) * 100, 100) if analysis.breakeven_months < 999 else 100 %}
+                        <div class="progress-bar 
+                            {% if analysis.breakeven_months <= 60 %}bg-success
+                            {% elif analysis.breakeven_months <= 120 %}bg-warning
+                            {% else %}bg-danger{% endif %}" 
+                            style="width: {{ progress }}%">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        {% if analysis.breakeven_months <= 60 %}
+                            <i class="fas fa-check-circle text-success"></i> Excellent timeline
+                        {% elif analysis.breakeven_months <= 120 %}
+                            <i class="fas fa-clock text-warning"></i> Moderate timeline
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle text-danger"></i> Long timeline
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini AI Property Insights -->
+    {% if gemini_insights %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-info shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-brain"></i> AI Property Insights</h4>
+                    <small>Comprehensive analysis powered by Gemini AI</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Market Outlook -->
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-chart-line"></i> Market Outlook</h6>
+                            <p class="text-muted">{{ gemini_insights.market_outlook }}</p>
+                        </div>
+                        
+                        <!-- Investment Potential -->
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-trophy"></i> Investment Potential</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-{{ 'success' if gemini_insights.investment_potential >= 7 else 'warning' if gemini_insights.investment_potential >= 5 else 'danger' }} me-2">
+                                    {{ gemini_insights.investment_potential }}/10
+                                </span>
+                                <small class="text-muted">Investment Score</small>
+                            </div>
+                            <p class="text-muted">{{ gemini_insights.investment_reasoning }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Key Risks -->
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-exclamation-triangle text-warning"></i> Key Risks</h6>
+                            <ul class="list-unstyled">
+                                {% for risk in gemini_insights.key_risks %}
+                                <li class="mb-1"><i class="fas fa-dot-circle text-warning me-2"></i>{{ risk }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <!-- Key Opportunities -->
+                        <div class="col-md-6 mb-3">
+                            <h6><i class="fas fa-lightbulb text-success"></i> Key Opportunities</h6>
+                            <ul class="list-unstyled">
+                                {% for opportunity in gemini_insights.key_opportunities %}
+                                <li class="mb-1"><i class="fas fa-dot-circle text-success me-2"></i>{{ opportunity }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Recommendations -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6><i class="fas fa-thumbs-up"></i> AI Recommendations</h6>
+                            <div class="alert alert-light border-info">
+                                {{ gemini_insights.recommendation }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rent-to-EMI Analysis (if available) -->
+                    {% if gemini_insights.rent_to_emi_analysis %}
+                    <div class="row">
+                        <div class="col-12">
+                            <h6><i class="fas fa-balance-scale"></i> Rent-to-EMI Coverage</h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="progress flex-grow-1 me-3" style="height: 25px;">
+                                    <div class="progress-bar bg-{{ gemini_insights.rent_to_emi_analysis.color }}" 
+                                         style="width: {{ gemini_insights.rent_to_emi_analysis.ratio_percentage }}%">
+                                        {{ "{:.1f}".format(gemini_insights.rent_to_emi_analysis.ratio_percentage) }}%
+                                    </div>
+                                </div>
+                                <span class="badge bg-{{ gemini_insights.rent_to_emi_analysis.color }}">
+                                    {{ gemini_insights.rent_to_emi_analysis.category }}
+                                </span>
+                            </div>
+                            <small class="text-muted">{{ gemini_insights.rent_to_emi_analysis.description }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Budget Warning -->
+    {% if budget and analysis.estimated_value > budget %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Budget Exceeded:</strong> 
+                Property price (${{ "{:,.0f}".format(analysis.estimated_value) }}) 
+                exceeds your budget (${{ "{:,.0f}".format(budget) }}) by 
+                ${{ "{:,.0f}".format(analysis.estimated_value - budget) }}.
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="row">
+        <div class="col-12 text-center">
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Analyze Another Property
+                </a>
+                <a href="{{ url_for('calculator') }}" class="btn btn-outline-success">
+                    <i class="fas fa-calculator"></i> Use Calculator
+                </a>
+                <button class="btn btn-outline-info" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,529 @@
+{% extends "layout.html" %}
+
+{% block title %}Investment Calculator{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <div class="row">
+        <div class="col-12 mb-3">
+            <nav aria-label="breadcrumb" class="d-none d-md-block">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Calculator</li>
+                </ol>
+            </nav>
+            <h1 class="h3 h1-md fw-bold">
+                <i class="fas fa-calculator text-primary"></i> Rental Yield Calculator
+            </h1>
+            <p class="text-muted mb-3 d-none d-md-block">Calculate rental yields and investment returns for any property</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-2 py-md-3">
+                    <h4 class="h6 h4-md mb-0"><i class="fas fa-calculator me-2"></i> Investment Calculator</h4>
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <form method="POST" action="{{ url_for('calculate') }}" class="needs-validation" novalidate>
+                        <!-- Mobile Progress Indicator -->
+                        <div class="d-md-none mb-3">
+                            <div class="progress" style="height: 4px;">
+                                <div class="progress-bar bg-primary" role="progressbar" style="width: 0%" id="mobileProgress"></div>
+                            </div>
+                            <small class="text-muted">Step <span id="currentStep">1</span> of 4</small>
+                        </div>
+                        
+                        <!-- Property Details -->
+                        <div class="form-section" data-step="1">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3 h6 h5-md">
+                                        <i class="fas fa-home me-2"></i> Property Details
+                                    </h5>
+                                </div>
+                            </div>
+                        
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="property_price" class="form-label fw-bold">Property Purchase Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control form-control-lg" id="property_price" 
+                                               name="property_price" placeholder="750000" required 
+                                               min="1000" step="1000" inputmode="numeric">
+                                    </div>
+                                    <div class="form-text small">Total purchase price of the property</div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label for="weekly_rent" class="form-label fw-bold">Weekly Rental Income *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control form-control-lg" id="weekly_rent" 
+                                               name="weekly_rent" placeholder="650" required 
+                                               min="1" step="10" inputmode="numeric">
+                                        <span class="input-group-text">/week</span>
+                                    </div>
+                                    <div class="form-text small">Expected weekly rental income</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loan Details Section -->
+                        <div class="form-section mt-4" data-step="2">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3 h6 h5-md">
+                                        <i class="fas fa-university me-2"></i> Loan Details
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="down_payment_percent" class="form-label fw-bold">Down Payment *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-lg" id="down_payment_percent" 
+                                                   name="down_payment_percent" value="20" required 
+                                                   min="5" max="100" step="1" inputmode="numeric">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text small">Percentage of property price as down payment</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="interest_rate" class="form-label fw-bold">Annual Interest Rate *</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-lg" id="interest_rate" 
+                                                   name="interest_rate" placeholder="6.5" required 
+                                                   min="0.1" max="20" step="0.1" inputmode="numeric">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text small">Annual interest rate for the mortgage</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="loan_term" class="form-label fw-bold">Loan Term</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-lg" id="loan_term" 
+                                                   name="loan_term" value="30" min="5" max="40" step="1" inputmode="numeric">
+                                            <span class="input-group-text">years</span>
+                                        </div>
+                                        <div class="form-text small">Length of the mortgage loan</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Costs Section -->
+                        <div class="form-section mt-4" data-step="3">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3 h6 h5-md">
+                                        <i class="fas fa-receipt me-2"></i> Additional Costs
+                                    </h5>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="agent_commission" class="form-label fw-bold">Real Estate Agent Commission</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control form-control-lg" id="agent_commission" 
+                                                   name="agent_commission" value="5.0" min="0" max="10" step="0.1" inputmode="numeric">
+                                            <span class="input-group-text">%</span>
+                                        </div>
+                                        <div class="form-text small">Agent commission on property purchase</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="mb-3">
+                                        <label for="other_costs" class="form-label fw-bold">Other Upfront Costs</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" class="form-control form-control-lg" id="other_costs" 
+                                                   name="other_costs" placeholder="5000" min="0" step="100" inputmode="numeric">
+                                        </div>
+                                        <div class="form-text small">Legal fees, inspections, stamp duty, etc.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operating Expenses Section -->
+                        <div class="form-section mt-4" data-step="4">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-primary mb-3 h6 h5-md">
+                                        <i class="fas fa-tools me-2"></i> Annual Operating Expenses
+                                    </h5>
+                                </div>
+                            </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="property_management" class="form-label">Property Management</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="property_management" 
+                                               name="property_management" value="8.0" min="0" max="20" step="0.1">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <div class="form-text">% of rental income</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="maintenance_repairs" class="form-label">Maintenance & Repairs</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="maintenance_repairs" 
+                                               name="maintenance_repairs" placeholder="3000" min="0" step="100">
+                                    </div>
+                                    <div class="form-text">Annual maintenance costs</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="insurance_rates" class="form-label">Insurance & Rates</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="insurance_rates" 
+                                               name="insurance_rates" placeholder="2500" min="0" step="100">
+                                    </div>
+                                    <div class="form-text">Annual insurance & council rates</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="vacancy_allowance" class="form-label">Vacancy Allowance</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="vacancy_allowance" 
+                                               name="vacancy_allowance" value="2.0" min="0" max="20" step="0.1">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <div class="form-text">% of rental income for vacancy</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="other_expenses" class="form-label">Other Annual Expenses</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" class="form-control" id="other_expenses" 
+                                               name="other_expenses" placeholder="1000" min="0" step="100">
+                                    </div>
+                                    <div class="form-text">Depreciation, accounting, etc.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capital Gains Forecast -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-primary mb-3 mt-4"><i class="fas fa-chart-line"></i> Capital Gains Forecast</h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="annual_growth_rate" class="form-label">Annual Property Growth Rate</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="annual_growth_rate" 
+                                               name="annual_growth_rate" value="5.5" min="0" max="20" step="0.1">
+                                        <span class="input-group-text">%</span>
+                                    </div>
+                                    <div class="form-text">Expected annual property value appreciation</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="projection_years" class="form-label">Projection Period</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="projection_years" 
+                                               name="projection_years" value="10" min="1" max="30" step="1">
+                                        <span class="input-group-text">years</span>
+                                    </div>
+                                    <div class="form-text">Years to project returns and growth</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    <i class="fas fa-calculator"></i> Calculate Investment Returns
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Example Scenarios -->
+    <div class="row mt-5">
+        <div class="col-12 text-center mb-4">
+            <h3>Example Scenarios</h3>
+            <p class="text-muted">Click on any scenario to populate the calculator</p>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card border-primary scenario-card" style="cursor: pointer;" 
+                 onclick="fillScenario(750000, 650, 6.5, 20)">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0">Melbourne Apartment</h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Price:</strong> $750,000<br>
+                        <strong>Weekly Rent:</strong> $650<br>
+                        <strong>Interest Rate:</strong> 6.5%<br>
+                        <strong>Down Payment:</strong> 20%
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card border-success scenario-card" style="cursor: pointer;" 
+                 onclick="fillScenario(680000, 580, 6.0, 25)">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">Brisbane House</h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Price:</strong> $680,000<br>
+                        <strong>Weekly Rent:</strong> $580<br>
+                        <strong>Interest Rate:</strong> 6.0%<br>
+                        <strong>Down Payment:</strong> 25%
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card border-warning scenario-card" style="cursor: pointer;" 
+                 onclick="fillScenario(850000, 720, 7.0, 30)">
+                <div class="card-header bg-warning text-white">
+                    <h6 class="mb-0">Sydney Premium</h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Price:</strong> $850,000<br>
+                        <strong>Weekly Rent:</strong> $720<br>
+                        <strong>Interest Rate:</strong> 7.0%<br>
+                        <strong>Down Payment:</strong> 30%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillScenario(price, weeklyRent, interestRate, downPayment) {
+    document.getElementById('property_price').value = price;
+    document.getElementById('weekly_rent').value = weeklyRent;
+    document.getElementById('interest_rate').value = interestRate;
+    document.getElementById('down_payment_percent').value = downPayment;
+    
+    // Scroll to form smoothly
+    document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    
+    // Add visual feedback
+    const form = document.querySelector('form');
+    form.classList.add('border-success');
+    setTimeout(() => form.classList.remove('border-success'), 2000);
+}
+
+// Mobile-specific functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const isMobile = window.innerWidth <= 768;
+    
+    // Mobile form progress tracking
+    if (isMobile) {
+        const formSections = document.querySelectorAll('.form-section');
+        const progressBar = document.getElementById('mobileProgress');
+        const currentStepSpan = document.getElementById('currentStep');
+        
+        // Track form completion progress
+        function updateProgress() {
+            let completedSections = 0;
+            formSections.forEach((section, index) => {
+                const inputs = section.querySelectorAll('input[required]');
+                const completedInputs = Array.from(inputs).filter(input => input.value.trim() !== '');
+                if (completedInputs.length === inputs.length) {
+                    completedSections++;
+                }
+            });
+            
+            const progress = (completedSections / formSections.length) * 100;
+            progressBar.style.width = progress + '%';
+        }
+        
+        // Add progress tracking to form inputs
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateProgress);
+            input.addEventListener('blur', updateProgress);
+        });
+        
+        // Smooth scroll between sections on mobile
+        function scrollToNextSection(currentSection) {
+            const nextSection = currentSection.nextElementSibling;
+            if (nextSection && nextSection.classList.contains('form-section')) {
+                nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+    
+    // Touch-friendly scenario cards
+    const scenarioCards = document.querySelectorAll('.scenario-card');
+    scenarioCards.forEach(card => {
+        if (isMobile) {
+            // Add touch feedback
+            card.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.95)';
+                this.style.transition = 'transform 0.1s ease';
+            });
+            card.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        } else {
+            // Desktop hover effects
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        }
+    });
+    
+    // Form validation feedback
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Find first invalid field and scroll to it
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+        } else {
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Calculating...';
+                submitBtn.disabled = true;
+            }
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Auto-format number inputs on mobile
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', function() {
+            // Remove non-numeric characters (except decimal point)
+            this.value = this.value.replace(/[^0-9.]/g, '');
+        });
+        
+        // Add thousand separators for display
+        input.addEventListener('blur', function() {
+            if (this.value && !isNaN(this.value)) {
+                const value = parseFloat(this.value);
+                if (this.id === 'property_price' && value >= 1000) {
+                    // Format large numbers with commas for readability
+                    this.setAttribute('data-formatted', value.toLocaleString());
+                }
+            }
+        });
+    });
+    
+    // Improved mobile keyboard handling
+    if (isMobile) {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.setAttribute('inputmode', 'numeric');
+            input.setAttribute('pattern', '[0-9]*');
+        });
+        
+        // Handle viewport changes when mobile keyboard appears
+        const viewport = document.querySelector('meta[name=viewport]');
+        document.addEventListener('focusin', function() {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        });
+        document.addEventListener('focusout', function() {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=no');
+        });
+    }
+    
+    // Add swipe gestures for mobile navigation
+    if (isMobile && 'ontouchstart' in window) {
+        let startX = 0;
+        let startY = 0;
+        
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // Only trigger swipe if horizontal movement is greater than vertical
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // Swipe left - could trigger next section navigation
+                    console.log('Swipe left detected');
+                } else {
+                    // Swipe right - could trigger previous section navigation
+                    console.log('Swipe right detected');
+                }
+            }
+        });
+    }
+});
+
+// Responsive utilities
+function isMobileDevice() {
+    return window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Performance optimization for mobile
+if (isMobileDevice()) {
+    // Reduce animation complexity on mobile
+    document.documentElement.style.setProperty('--animation-duration', '0.2s');
+    
+    // Optimize scroll performance
+    document.addEventListener('scroll', function() {
+        // Throttle scroll events
+    }, { passive: true });
+}
+</script>
+{% endblock %}

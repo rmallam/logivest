@@ -1,0 +1,234 @@
+{% extends "layout.html" %}
+
+{% block title %}Investment Opportunities - {{ location }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item active">Search Results</li>
+                </ol>
+            </nav>
+            <h1 class="display-6 fw-bold">
+                <i class="fas fa-search text-success"></i> Investment Opportunities
+            </h1>
+            <p class="lead text-muted">{{ location }} | Budget: ${{ "{:,.0f}".format(max_budget) }} | Min Yield: {{ min_yield }}%</p>
+        </div>
+    </div>
+
+    <!-- Search Summary -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">
+                                <i class="fas fa-chart-bar text-primary"></i> 
+                                Found {{ opportunities|length }} qualifying properties
+                            </h5>
+                            <p class="mb-0 text-muted">
+                                Showing properties in {{ location }} under ${{ "{:,.0f}".format(max_budget) }} 
+                                with minimum {{ min_yield }}% rental yield
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i> New Search
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if opportunities %}
+        <!-- Property Results -->
+        <div class="row">
+            {% for opp in opportunities %}
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-header bg-gradient" 
+                         style="background: linear-gradient(45deg, 
+                         {% if opp.investment_score >= 8 %}#28a745, #20c997
+                         {% elif opp.investment_score >= 6 %}#ffc107, #fd7e14
+                         {% else %}#dc3545, #e83e8c{% endif %});">
+                        <div class="row align-items-center text-white">
+                            <div class="col">
+                                <h6 class="mb-1">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    {{ opp.address }}
+                                </h6>
+                                <small>{{ opp.property_type.title() }}</small>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-white text-dark fs-6">
+                                    {{ opp.investment_score }}/10
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Property Details -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">Price</small>
+                                <div class="h5 mb-0">${{ "{:,.0f}".format(opp.estimated_value) }}</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Monthly Rent</small>
+                                <div class="h5 mb-0">${{ "{:,.0f}".format(opp.estimated_rent) }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Property Specs -->
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <i class="fas fa-bed text-primary"></i>
+                                    <div class="small">{{ opp.bedrooms }} BR</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <i class="fas fa-bath text-info"></i>
+                                    <div class="small">{{ opp.bathrooms }} BA</div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="text-center">
+                                    <i class="fas fa-ruler-combined text-warning"></i>
+                                    <div class="small">{{ "{:,}".format(opp.sqft) }} sqft</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Investment Metrics -->
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="metric-card p-2 rounded">
+                                    <small class="text-muted">Gross Yield</small>
+                                    <div class="fw-bold {% if opp.gross_yield >= 8 %}text-success{% elif opp.gross_yield >= 6 %}text-warning{% else %}text-danger{% endif %}">
+                                        {{ "%.1f"|format(opp.gross_yield) }}%
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="metric-card p-2 rounded">
+                                    <small class="text-muted">Cash Flow</small>
+                                    <div class="fw-bold {% if opp.monthly_cashflow >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                        ${{ "{:,.0f}".format(opp.monthly_cashflow) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                {{ opp.recommendation.split(':')[0] if ':' in opp.recommendation else opp.recommendation[:20] }}
+                            </small>
+                            <button class="btn btn-sm btn-primary" 
+                                    onclick="viewDetails('{{ opp.address }}', {{ opp.estimated_value }}, {{ opp.estimated_rent }})">
+                                <i class="fas fa-eye"></i> Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Market Analysis Link -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('market_analysis', location=location) }}" class="btn btn-outline-info btn-lg">
+                    <i class="fas fa-chart-line"></i> View {{ location }} Market Analysis
+                </a>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- No Results -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                        <h3>No Properties Found</h3>
+                        <p class="lead text-muted mb-4">
+                            No properties in {{ location }} meet your criteria of ${{ "{:,.0f}".format(max_budget) }} 
+                            budget with {{ min_yield }}% minimum yield.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="{{ url_for('index') }}" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Try Different Search
+                            </a>
+                            <a href="{{ url_for('market_analysis', location=location) }}" class="btn btn-outline-info">
+                                <i class="fas fa-chart-line"></i> View Market Analysis
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Property Details Modal -->
+<div class="modal fade" id="propertyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Property Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('calculator') }}" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Use Calculator
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function viewDetails(address, price, rent) {
+    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-home"></i> ' + address;
+    
+    const modalBody = document.getElementById('modalBody');
+    modalBody.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="fas fa-info-circle text-primary"></i> Property Information</h6>
+                <p><strong>Address:</strong> ${address}</p>
+                <p><strong>Estimated Value:</strong> $${price.toLocaleString()}</p>
+                <p><strong>Monthly Rent:</strong> $${rent.toLocaleString()}</p>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="fas fa-calculator text-success"></i> Quick Calculations</h6>
+                <p><strong>Annual Rent:</strong> $${(rent * 12).toLocaleString()}</p>
+                <p><strong>Gross Yield:</strong> ${((rent * 12 / price) * 100).toFixed(2)}%</p>
+                <p><strong>Price per $1 Rent:</strong> ${(price / rent).toFixed(0)}x</p>
+            </div>
+        </div>
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-lightbulb"></i> 
+            <strong>Tip:</strong> Use the calculator to analyze this property with your specific financing scenarios.
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('propertyModal')).show();
+}
+</script>
+{% endblock %}
