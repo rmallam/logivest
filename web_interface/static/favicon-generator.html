@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator</title>
+    <style>
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .preview { display: inline-block; margin: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Logivest Favicon Generator</h1>
+    
+    <div class="preview">
+        <h3>16x16</h3>
+        <canvas id="favicon16" width="16" height="16"></canvas>
+    </div>
+    
+    <div class="preview">
+        <h3>32x32</h3>
+        <canvas id="favicon32" width="32" height="32"></canvas>
+    </div>
+    
+    <div class="preview">
+        <h3>180x180 (Apple Touch)</h3>
+        <canvas id="favicon180" width="180" height="180"></canvas>
+    </div>
+
+    <script>
+        function drawFavicon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Create gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#f093fb');
+            
+            // Draw background with rounded corners
+            ctx.fillStyle = gradient;
+            const radius = size * 0.15;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+            
+            // Add neural network pattern
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = 0; i < size; i += size/4) {
+                for (let j = 0; j < size; j += size/4) {
+                    ctx.beginPath();
+                    ctx.arc(i, j, size/20, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+            
+            // Draw "LI" text
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = size/32;
+            ctx.font = `bold ${size*0.4}px Arial, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const text = 'LI';
+            const x = size / 2;
+            const y = size / 2;
+            
+            ctx.strokeText(text, x, y);
+            ctx.fillText(text, x, y);
+            
+            // Add tech accent
+            ctx.fillStyle = 'rgba(255, 193, 7, 0.8)';
+            ctx.beginPath();
+            ctx.arc(size * 0.8, size * 0.2, size * 0.08, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(size * 0.8, size * 0.2, size * 0.04, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+        
+        // Polyfill for roundRect if not available
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+                this.moveTo(x + radius, y);
+                this.lineTo(x + width - radius, y);
+                this.quadraticCurveTo(x + width, y, x + width, y + radius);
+                this.lineTo(x + width, y + height - radius);
+                this.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                this.lineTo(x + radius, y + height);
+                this.quadraticCurveTo(x, y + height, x, y + height - radius);
+                this.lineTo(x, y + radius);
+                this.quadraticCurveTo(x, y, x + radius, y);
+                this.closePath();
+            };
+        }
+        
+        // Generate favicons
+        drawFavicon(document.getElementById('favicon16'), 16);
+        drawFavicon(document.getElementById('favicon32'), 32);
+        drawFavicon(document.getElementById('favicon180'), 180);
+        
+        // Add download links
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                // Convert to download links
+                ['favicon16', 'favicon32', 'favicon180'].forEach(id => {
+                    const canvas = document.getElementById(id);
+                    const link = document.createElement('a');
+                    const size = id.replace('favicon', '');
+                    
+                    canvas.toBlob(blob => {
+                        const url = URL.createObjectURL(blob);
+                        link.href = url;
+                        link.download = `favicon-${size}x${size}.png`;
+                        link.textContent = `Download ${size}x${size}`;
+                        link.style.display = 'block';
+                        canvas.parentNode.appendChild(link);
+                    });
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
