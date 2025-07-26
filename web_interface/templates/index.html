@@ -15,11 +15,14 @@
                     Get instant insights on rental yields, cash flow projections, and market opportunities across Australia.
                 </p>
                 <div class="d-grid d-md-flex gap-2 gap-md-3 justify-content-md-center justify-content-lg-start">
-                    <a href="#analyze-property" class="btn btn-warning btn-lg shadow-lg fw-bold" style="color: #1a1d23;">
+                    <button type="button" class="btn btn-warning btn-lg shadow-lg fw-bold hero-analyze-btn" style="color: #1a1d23; z-index: 10; position: relative;">
                         <i class="fas fa-search-dollar me-2"></i> Analyze Property
-                    </a>
-                    <a href="#find-opportunities" class="btn btn-light btn-lg fw-bold" style="color: #1a1d23;">
+                    </button>
+                    <button type="button" class="btn btn-light btn-lg fw-bold hero-find-btn" style="color: #1a1d23; z-index: 10; position: relative;">
                         <i class="fas fa-map-marker-alt me-2"></i> Find Opportunities
+                    </button>
+                    <a href="{{ url_for('calculator') }}" class="btn btn-warning btn-lg fw-bold" style="color: #1a1d23; background-color: #ffc107; border-color: #ffc107; z-index: 10; position: relative;">
+                        <i class="fas fa-calculator me-2"></i> Rental Yield Calculator
                     </a>
                 </div>
             </div>
@@ -202,39 +205,85 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, setting up button event listeners...');
+    
+    // Function to scroll to specific sections
+    function scrollToSection(sectionId) {
+        console.log('Scrolling to section:', sectionId);
+        const target = document.getElementById(sectionId);
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            // Add a small delay to account for scroll animation, then focus on the first input
+            setTimeout(function() {
+                const firstInput = target.querySelector('input[type="text"], input[type="number"], select');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            }, 500);
+        } else {
+            console.error('Target section not found:', sectionId);
+        }
+    }
+    
+    // Add event listeners to hero buttons
+    const analyzeBtn = document.querySelector('.hero-analyze-btn');
+    const findBtn = document.querySelector('.hero-find-btn');
+    
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', function(e) {
+            console.log('Analyze button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            scrollToSection('analyze-property');
+        });
+        console.log('Analyze button listener added');
+    } else {
+        console.error('Analyze button not found');
+    }
+    
+    if (findBtn) {
+        findBtn.addEventListener('click', function(e) {
+            console.log('Find button clicked');
+            e.preventDefault();
+            e.stopPropagation();
+            scrollToSection('find-opportunities');
+        });
+        console.log('Find button listener added');
+    } else {
+        console.error('Find button not found');
+    }
+    
     // Smooth scrolling for anchor links
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
     
     anchorLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+            const targetId = this.getAttribute('href').substring(1);
+            scrollToSection(targetId);
         });
     });
     
     // Handle property analysis form submission
     const analyzeForm = document.querySelector('form[action="{{ url_for("analyze_property") }}"]');
-    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analyzeFormBtn = document.getElementById('analyzeBtn');
     const analyzeText = document.getElementById('analyzeText');
     const loadingSpinner = document.getElementById('loadingSpinner');
     
-    if (analyzeForm && analyzeBtn) {
+    if (analyzeForm && analyzeFormBtn) {
         analyzeForm.addEventListener('submit', function(e) {
             // Show loading state
-            analyzeBtn.disabled = true;
+            analyzeFormBtn.disabled = true;
             analyzeText.classList.add('d-none');
             loadingSpinner.classList.remove('d-none');
             
             // Optional: Add a timeout to re-enable the button if something goes wrong
             setTimeout(function() {
-                if (analyzeBtn.disabled) {
-                    analyzeBtn.disabled = false;
+                if (analyzeFormBtn.disabled) {
+                    analyzeFormBtn.disabled = false;
                     analyzeText.classList.remove('d-none');
                     loadingSpinner.classList.add('d-none');
                 }
@@ -244,21 +293,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle find opportunities form submission
     const findForm = document.querySelector('form[action="{{ url_for("search_properties") }}"]');
-    const findBtn = document.getElementById('findBtn');
+    const findFormBtn = document.getElementById('findBtn');
     const findText = document.getElementById('findText');
     const findSpinner = document.getElementById('findSpinner');
     
-    if (findForm && findBtn) {
+    if (findForm && findFormBtn) {
         findForm.addEventListener('submit', function(e) {
             // Show loading state
-            findBtn.disabled = true;
+            findFormBtn.disabled = true;
             findText.classList.add('d-none');
             findSpinner.classList.remove('d-none');
             
             // Optional: Add a timeout to re-enable the button if something goes wrong
             setTimeout(function() {
-                if (findBtn.disabled) {
-                    findBtn.disabled = false;
+                if (findFormBtn.disabled) {
+                    findFormBtn.disabled = false;
                     findText.classList.remove('d-none');
                     findSpinner.classList.add('d-none');
                 }

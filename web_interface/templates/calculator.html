@@ -485,14 +485,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initial progress update
         updateProgress();
-            progressBar.style.width = progress + '%';
-        }
-        
-        // Add progress tracking to form inputs
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', updateProgress);
-            input.addEventListener('blur', updateProgress);
-        });
         
         // Smooth scroll between sections on mobile
         function scrollToNextSection(currentSection) {
