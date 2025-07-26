@@ -8,12 +8,12 @@
         <div class="col-12 mb-4">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-warning">Home</a></li>
                     <li class="breadcrumb-item active">Search Results</li>
                 </ol>
             </nav>
             <h1 class="display-6 fw-bold">
-                <i class="fas fa-search text-success"></i> Investment Opportunities
+                <i class="fas fa-map-marked-alt me-2" style="color: #ffc107;"></i> Investment Opportunities
             </h1>
             <p class="lead text-muted">{{ location }} | Budget: ${{ "{:,.0f}".format(max_budget) }} | Min Yield: {{ min_yield }}%</p>
         </div>

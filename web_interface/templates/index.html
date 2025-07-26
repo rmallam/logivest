@@ -6,23 +6,28 @@
         <div class="row align-items-center">
             <div class="col-12 col-lg-8 mx-auto text-center text-lg-start">
                 <h1 class="h2 h1-md fw-bold mb-3 mb-md-4">
-                    <i class="fas fa-chart-line me-2"></i> Smart Real Estate Investment Analysis
+                    <i class="fas fa-chart-trending-up me-2"></i> 
+                    <span class="text-white">Welcome to</span> 
+                    <span class="d-block d-md-inline fw-bold" style="color: #ffc107; font-size: 1.2em;">Logivest</span>
                 </h1>
-                <p class="mb-3 mb-md-4">
-                    Discover profitable rental properties with our AI-powered analysis. 
-                    Get instant insights on rental yields, cash flow, and investment potential.
+                <p class="fs-5 mb-3 mb-md-4 opacity-90">
+                    Discover profitable real estate investments with our AI-powered analysis platform. 
+                    Get instant insights on rental yields, cash flow projections, and market opportunities across Australia.
                 </p>
                 <div class="d-grid d-md-flex gap-2 gap-md-3 justify-content-md-center justify-content-lg-start">
-                    <a href="#analyze-property" class="btn btn-light btn-lg">
-                        <i class="fas fa-search me-2"></i> Analyze Property
+                    <a href="#analyze-property" class="btn btn-warning btn-lg shadow-lg fw-bold" style="color: #1a1d23;">
+                        <i class="fas fa-search-dollar me-2"></i> Analyze Property
                     </a>
-                    <a href="#find-opportunities" class="btn btn-outline-light btn-lg">
+                    <a href="#find-opportunities" class="btn btn-light btn-lg fw-bold" style="color: #1a1d23;">
                         <i class="fas fa-map-marker-alt me-2"></i> Find Opportunities
                     </a>
                 </div>
             </div>
             <div class="col-lg-4 text-center d-none d-lg-block">
-                <i class="fas fa-building" style="font-size: 10rem; opacity: 0.3;"></i>
+                <div class="hero-icon-container position-relative">
+                    <i class="fas fa-building" style="font-size: 8rem; opacity: 0.2; color: white;"></i>
+                    <i class="fas fa-chart-line position-absolute" style="font-size: 3rem; opacity: 0.3; color: white; top: 50%; left: 50%; transform: translate(-50%, -50%);"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -31,34 +36,40 @@
 <div class="container-fluid py-4 py-md-5 px-3">
     <!-- Key Features -->
     <div class="row mb-4 mb-md-5">
-        <div class="col-12 text-center mb-3 mb-md-4">
-            <h2 class="h3 h2-md fw-bold">Why Choose Our Platform?</h2>
-            <p class="text-muted">Comprehensive analysis tools for smart real estate investments</p>
+        <div class="col-12 text-center mb-4 mb-md-5">
+            <h2 class="h3 h2-md fw-bold mb-3">Why Choose <span class="text-gradient">Logivest</span>?</h2>
+            <p class="text-muted fs-5">Comprehensive AI-powered analysis tools for smart real estate investments</p>
         </div>
         <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-4">
-            <div class="card feature-card h-100 text-center p-3 p-md-4">
+            <div class="card feature-card h-100 text-center fade-in">
                 <div class="card-body">
-                    <i class="fas fa-calculator fa-3x text-primary mb-3"></i>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-calculator fa-3x text-primary"></i>
+                    </div>
                     <h5 class="card-title">Advanced Calculations</h5>
-                    <p class="card-text">Rental yields, cash flow, ROI, and loan-to-rent ratios calculated instantly.</p>
+                    <p class="card-text text-muted">Rental yields, cash flow, ROI, and rent-to-EMI ratios calculated instantly with precision.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card feature-card h-100 text-center p-4">
+        <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-4">
+            <div class="card feature-card h-100 text-center fade-in">
                 <div class="card-body">
-                    <i class="fas fa-chart-area fa-3x text-success mb-3"></i>
-                    <h5 class="card-title">Market Analysis</h5>
-                    <p class="card-text">Comprehensive market insights and investment recommendations.</p>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-chart-line fa-3x text-success"></i>
+                    </div>
+                    <h5 class="card-title">AI Market Analysis</h5>
+                    <p class="card-text text-muted">Comprehensive market insights powered by advanced AI for informed investment decisions.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-4">
-            <div class="card feature-card h-100 text-center p-4">
+        <div class="col-12 col-md-6 col-lg-4 mb-3 mb-md-4">
+            <div class="card feature-card h-100 text-center fade-in">
                 <div class="card-body">
-                    <i class="fas fa-target fa-3x text-warning mb-3"></i>
-                    <h5 class="card-title">Smart Suggestions</h5>
-                    <p class="card-text">AI-powered property recommendations based on your criteria.</p>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-target fa-3x text-warning"></i>
+                    </div>
+                    <h5 class="card-title">Smart Recommendations</h5>
+                    <p class="card-text text-muted">AI-powered property recommendations tailored to your investment criteria and goals.</p>
                 </div>
             </div>
         </div>
@@ -66,51 +77,62 @@
 
     <!-- Property Analysis Section -->
     <div class="row mb-5" id="analyze-property">
-        <div class="col-lg-6">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="fas fa-home"></i> Analyze Specific Property</h4>
+        <div class="col-lg-6 mb-4">
+            <div class="card feature-card border-0">
+                <div class="card-header bg-gradient text-white" style="background: var(--primary-gradient); border-radius: 16px 16px 0 0;">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="fas fa-search-dollar me-2"></i> Analyze Specific Property
+                    </h4>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('analyze_property') }}">
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Property Address</label>
+                        <div class="mb-4">
+                            <label for="address" class="form-label fw-semibold">Property Address</label>
                             <input type="text" class="form-control" id="address" name="address" 
                                    placeholder="e.g., 123 Collins St, Melbourne VIC" required>
-                            <div class="form-text">Enter full address for accurate analysis</div>
+                            <div class="form-text">Enter full address for accurate AI-powered analysis</div>
                         </div>
-                        <div class="mb-3">
-                            <label for="budget" class="form-label">Maximum Budget (Optional)</label>
+                        <div class="mb-4">
+                            <label for="budget" class="form-label fw-semibold">Maximum Budget (Optional)</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="budget" name="budget" 
                                        placeholder="500000" min="0" step="1000">
                             </div>
+                            <div class="form-text">Set your budget for personalized recommendations</div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-search"></i> Analyze Property
+                        <button type="submit" class="btn btn-primary btn-lg w-100 shadow-sm" id="analyzeBtn">
+                            <span id="analyzeText">
+                                <i class="fas fa-chart-line me-2"></i> Analyze Property
+                            </span>
+                            <span id="loadingSpinner" class="d-none">
+                                <span class="loading-spinner me-2"></span> Analyzing Property...
+                            </span>
                         </button>
                     </form>
                 </div>
             </div>
         </div>
         
-        <div class="col-lg-6">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0"><i class="fas fa-map-marker-alt"></i> Find Investment Opportunities</h4>
+        <div class="col-lg-6 mb-4">
+            <div class="card feature-card border-0">
+                <div class="card-header bg-gradient text-white" style="background: var(--success-gradient); border-radius: 16px 16px 0 0;">
+                    <h4 class="mb-0 fw-bold">
+                        <i class="fas fa-map-marked-alt me-2"></i> Find Investment Opportunities
+                    </h4>
                 </div>
                 <div class="card-body" id="find-opportunities">
                     <form method="POST" action="{{ url_for('search_properties') }}">
-                        <div class="mb-3">
-                            <label for="location" class="form-label">Location</label>
+                        <div class="mb-4">
+                            <label for="location" class="form-label fw-semibold">Location</label>
                             <input type="text" class="form-control" id="location" name="location" 
                                    placeholder="e.g., Melbourne VIC or 3000" required>
+                            <div class="form-text">Enter city, suburb, or postcode to search</div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="max_budget" class="form-label">Max Budget</label>
+                                <div class="mb-4">
+                                    <label for="max_budget" class="form-label fw-semibold">Max Budget</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" class="form-control" id="max_budget" name="max_budget" 
@@ -119,24 +141,30 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="min_yield" class="form-label">Min Yield %</label>
+                                <div class="mb-4">
+                                    <label for="min_yield" class="form-label fw-semibold">Min Yield %</label>
                                     <input type="number" class="form-control" id="min_yield" name="min_yield" 
                                            value="4.0" min="0" max="20" step="0.1">
                                 </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="property_type" class="form-label">Property Type</label>
+                        <div class="mb-4">
+                            <label for="property_type" class="form-label fw-semibold">Property Type</label>
                             <select class="form-select" id="property_type" name="property_type">
                                 <option value="any">Any Type</option>
                                 <option value="house">House</option>
-                                <option value="condo">Condo</option>
+                                <option value="apartment">Apartment</option>
                                 <option value="townhouse">Townhouse</option>
+                                <option value="unit">Unit</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100">
-                            <i class="fas fa-search"></i> Find Opportunities
+                        <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm" id="findBtn">
+                            <span id="findText">
+                                <i class="fas fa-map-marked-alt me-2"></i> Find Opportunities
+                            </span>
+                            <span id="findSpinner" class="d-none">
+                                <span class="loading-spinner me-2"></span> Searching Properties...
+                            </span>
                         </button>
                     </form>
                 </div>
@@ -146,29 +174,98 @@
 
     <!-- Quick Market Links -->
     <div class="row">
-        <div class="col-12 text-center mb-4">
-            <h3>Popular Markets</h3>
-            <p class="text-muted">Quick access to market analysis for top investment locations</p>
+        <div class="col-12 text-center mb-5">
+            <h3 class="fw-bold mb-3">Popular Australian Markets</h3>
+            <p class="text-muted fs-5">Quick access to AI-powered market analysis for top investment locations</p>
         </div>
         <div class="col-md-12 text-center">
-            <div class="btn-group flex-wrap" role="group">
-                <a href="{{ url_for('market_analysis', location='Austin, TX') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line"></i> Austin, TX
+            <div class="btn-group flex-wrap gap-2" role="group">
+                <a href="{{ url_for('market_analysis', location='Melbourne, VIC') }}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chart-line me-2"></i> Melbourne, VIC
                 </a>
-                <a href="{{ url_for('market_analysis', location='Denver, CO') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line"></i> Denver, CO
+                <a href="{{ url_for('market_analysis', location='Sydney, NSW') }}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chart-line me-2"></i> Sydney, NSW
                 </a>
-                <a href="{{ url_for('market_analysis', location='Atlanta, GA') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line"></i> Atlanta, GA
+                <a href="{{ url_for('market_analysis', location='Brisbane, QLD') }}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chart-line me-2"></i> Brisbane, QLD
                 </a>
-                <a href="{{ url_for('market_analysis', location='Phoenix, AZ') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line"></i> Phoenix, AZ
+                <a href="{{ url_for('market_analysis', location='Perth, WA') }}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chart-line me-2"></i> Perth, WA
                 </a>
-                <a href="{{ url_for('market_analysis', location='Tampa, FL') }}" class="btn btn-outline-primary">
-                    <i class="fas fa-chart-line"></i> Tampa, FL
+                <a href="{{ url_for('market_analysis', location='Adelaide, SA') }}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chart-line me-2"></i> Adelaide, SA
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Smooth scrolling for anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Handle property analysis form submission
+    const analyzeForm = document.querySelector('form[action="{{ url_for("analyze_property") }}"]');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const analyzeText = document.getElementById('analyzeText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    
+    if (analyzeForm && analyzeBtn) {
+        analyzeForm.addEventListener('submit', function(e) {
+            // Show loading state
+            analyzeBtn.disabled = true;
+            analyzeText.classList.add('d-none');
+            loadingSpinner.classList.remove('d-none');
+            
+            // Optional: Add a timeout to re-enable the button if something goes wrong
+            setTimeout(function() {
+                if (analyzeBtn.disabled) {
+                    analyzeBtn.disabled = false;
+                    analyzeText.classList.remove('d-none');
+                    loadingSpinner.classList.add('d-none');
+                }
+            }, 60000); // 60 seconds timeout
+        });
+    }
+    
+    // Handle find opportunities form submission
+    const findForm = document.querySelector('form[action="{{ url_for("search_properties") }}"]');
+    const findBtn = document.getElementById('findBtn');
+    const findText = document.getElementById('findText');
+    const findSpinner = document.getElementById('findSpinner');
+    
+    if (findForm && findBtn) {
+        findForm.addEventListener('submit', function(e) {
+            // Show loading state
+            findBtn.disabled = true;
+            findText.classList.add('d-none');
+            findSpinner.classList.remove('d-none');
+            
+            // Optional: Add a timeout to re-enable the button if something goes wrong
+            setTimeout(function() {
+                if (findBtn.disabled) {
+                    findBtn.disabled = false;
+                    findText.classList.remove('d-none');
+                    findSpinner.classList.add('d-none');
+                }
+            }, 60000); // 60 seconds timeout
+        });
+    }
+});
+</script>
+
 {% endblock %}

@@ -1,0 +1,25 @@
+# Real Estate Investment Analyzer - Fixed Dependencies
+# Optimized for Render deployment with MCP support
+
+# MCP Framework (compatible versions)
+mcp>=1.6.0,<2.0.0
+fastmcp>=0.9.0
+
+# Web Framework
+flask==3.0.0
+gunicorn==21.2.0
+
+# HTTP clients
+requests==2.31.0
+
+# AI Integration
+google-generativeai>=0.3.0
+
+# Data validation (flexible version)
+pydantic>=2.0.0
+
+# Environment management
+python-dotenv>=1.0.1
+
+# Basic data processing
+numpy>=1.24.0

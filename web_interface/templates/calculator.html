@@ -2,6 +2,77 @@
 
 {% block title %}Investment Calculator{% endblock %}
 
+{% block styles %}
+<style>
+/* Enhanced input validation styles */
+.form-control.is-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.form-control.is-valid {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Better mobile input handling */
+@media (max-width: 768px) {
+    .form-control-lg {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 0.75rem 1rem;
+    }
+    
+    .input-group-text {
+        font-size: 16px;
+    }
+    
+    /* Improved touch targets */
+    .form-control:focus {
+        transform: scale(1.02);
+        transition: transform 0.1s ease;
+    }
+    
+    .form-control:focus:not(.is-invalid) {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+}
+
+/* Loading spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Progress indicator improvements */
+.progress {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Input focus improvements */
+.form-control:focus {
+    outline: none;
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Scenario card hover effects */
+.scenario-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.scenario-card:active {
+    transform: translateY(0);
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-3">
     <div class="row">
@@ -13,7 +84,7 @@
                 </ol>
             </nav>
             <h1 class="h3 h1-md fw-bold">
-                <i class="fas fa-calculator text-primary"></i> Rental Yield Calculator
+                <i class="fas fa-calculator me-2" style="color: #ffc107;"></i> Rental Yield Calculator
             </h1>
             <p class="text-muted mb-3 d-none d-md-block">Calculate rental yields and investment returns for any property</p>
         </div>
@@ -53,9 +124,12 @@
                                         <span class="input-group-text">$</span>
                                         <input type="number" class="form-control form-control-lg" id="property_price" 
                                                name="property_price" placeholder="750000" required 
-                                               min="1000" step="1000" inputmode="numeric">
+                                               min="1000" max="50000000" step="1000" inputmode="numeric"
+                                               data-field-name="Property Purchase Price">
                                     </div>
                                     <div class="form-text small">Total purchase price of the property</div>
+                                    <div class="invalid-feedback">Please enter a valid property price (minimum $1,000)</div>
+                                    <div class="valid-feedback">Looks good!</div>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
@@ -65,10 +139,13 @@
                                         <span class="input-group-text">$</span>
                                         <input type="number" class="form-control form-control-lg" id="weekly_rent" 
                                                name="weekly_rent" placeholder="650" required 
-                                               min="1" step="10" inputmode="numeric">
+                                               min="1" max="5000" step="10" inputmode="numeric"
+                                               data-field-name="Weekly Rental Income">
                                         <span class="input-group-text">/week</span>
                                     </div>
                                     <div class="form-text small">Expected weekly rental income</div>
+                                    <div class="invalid-feedback">Please enter a valid weekly rent amount (minimum $1)</div>
+                                    <div class="valid-feedback">Looks good!</div>
                                 </div>
                             </div>
                         </div>
@@ -366,18 +443,48 @@ document.addEventListener('DOMContentLoaded', function() {
         const progressBar = document.getElementById('mobileProgress');
         const currentStepSpan = document.getElementById('currentStep');
         
-        // Track form completion progress
+        // Track form completion progress with better validation
         function updateProgress() {
             let completedSections = 0;
+            let totalSections = 0;
+            
             formSections.forEach((section, index) => {
+                totalSections++;
                 const inputs = section.querySelectorAll('input[required]');
-                const completedInputs = Array.from(inputs).filter(input => input.value.trim() !== '');
-                if (completedInputs.length === inputs.length) {
+                let sectionComplete = true;
+                
+                inputs.forEach(input => {
+                    const value = parseFloat(input.value);
+                    const min = parseFloat(input.getAttribute('min')) || 0;
+                    const max = parseFloat(input.getAttribute('max')) || Infinity;
+                    
+                    if (!input.value.trim() || isNaN(value) || value < min || value > max) {
+                        sectionComplete = false;
+                    }
+                });
+                
+                if (inputs.length === 0 || sectionComplete) {
                     completedSections++;
                 }
             });
             
-            const progress = (completedSections / formSections.length) * 100;
+            const progress = totalSections > 0 ? (completedSections / totalSections) * 100 : 0;
+            if (progressBar) {
+                progressBar.style.width = progress + '%';
+            }
+            if (currentStepSpan) {
+                currentStepSpan.textContent = Math.min(completedSections + 1, totalSections);
+            }
+        }
+        
+        // Update progress on input changes
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', updateProgress);
+            input.addEventListener('blur', updateProgress);
+        });
+        
+        // Initial progress update
+        updateProgress();
             progressBar.style.width = progress + '%';
         }
         
@@ -420,46 +527,178 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Form validation feedback
+    // Form validation with better feedback
     const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
-        if (!form.checkValidity()) {
+        let isValid = true;
+        const errors = [];
+        
+        // Check required fields manually
+        const requiredFields = [
+            { id: 'property_price', name: 'Property Purchase Price', min: 1000 },
+            { id: 'weekly_rent', name: 'Weekly Rental Income', min: 1 },
+            { id: 'down_payment_percent', name: 'Down Payment', min: 5, max: 100 },
+            { id: 'interest_rate', name: 'Interest Rate', min: 0.1, max: 20 }
+        ];
+        
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const value = parseFloat(input.value);
+            
+            if (!input.value.trim() || isNaN(value)) {
+                isValid = false;
+                errors.push(`${field.name} is required`);
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            } else if (field.min && value < field.min) {
+                isValid = false;
+                errors.push(`${field.name} must be at least ${field.min}`);
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            } else if (field.max && value > field.max) {
+                isValid = false;
+                errors.push(`${field.name} must be no more than ${field.max}`);
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+            } else {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            }
+        });
+        
+        if (!isValid) {
             e.preventDefault();
             e.stopPropagation();
             
+            // Show errors
+            let errorMsg = 'Please fix the following issues:\\n\\n' + errors.join('\\n');
+            
             // Find first invalid field and scroll to it
-            const firstInvalid = form.querySelector(':invalid');
+            const firstInvalid = form.querySelector('.is-invalid');
             if (firstInvalid) {
                 firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                firstInvalid.focus();
+                setTimeout(() => firstInvalid.focus(), 300);
+            }
+            
+            // Show error message
+            if (isMobile) {
+                // Use a more mobile-friendly alert
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+                errorDiv.style.cssText = 'top: 20px; left: 20px; right: 20px; z-index: 9999;';
+                errorDiv.innerHTML = `
+                    <strong>Validation Error:</strong><br>
+                    ${errors.join('<br>')}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            } else {
+                alert(errorMsg);
             }
         } else {
             // Show loading state
             const submitBtn = form.querySelector('button[type="submit"]');
             if (submitBtn) {
-                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Calculating...';
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Calculating...';
                 submitBtn.disabled = true;
             }
         }
+        
         form.classList.add('was-validated');
     });
     
-    // Auto-format number inputs on mobile
+    // Auto-format number inputs with better cursor handling
     document.querySelectorAll('input[type="number"]').forEach(input => {
-        input.addEventListener('input', function() {
-            // Remove non-numeric characters (except decimal point)
-            this.value = this.value.replace(/[^0-9.]/g, '');
+        let lastValidValue = input.value;
+        
+        input.addEventListener('input', function(e) {
+            const cursorPosition = this.selectionStart;
+            const originalLength = this.value.length;
+            
+            // Allow decimal numbers and empty values
+            const validValue = this.value.replace(/[^0-9.]/g, '');
+            
+            // Prevent multiple decimal points
+            const parts = validValue.split('.');
+            if (parts.length > 2) {
+                this.value = parts[0] + '.' + parts.slice(1).join('');
+            } else {
+                this.value = validValue;
+            }
+            
+            // Restore cursor position after cleaning
+            const newLength = this.value.length;
+            const newCursorPosition = cursorPosition + (newLength - originalLength);
+            this.setSelectionRange(newCursorPosition, newCursorPosition);
+            
+            // Store valid value
+            if (this.value === '' || !isNaN(parseFloat(this.value))) {
+                lastValidValue = this.value;
+            }
+            
+            // Update mobile progress if on mobile
+            if (isMobile) {
+                updateProgress();
+            }
         });
         
-        // Add thousand separators for display
+        input.addEventListener('keydown', function(e) {
+            // Handle backspace and delete better
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                // Don't prevent default, let normal behavior happen
+                return;
+            }
+            
+            // Allow navigation keys
+            if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'].includes(e.key)) {
+                return;
+            }
+            
+            // Allow decimal point only if not already present
+            if (e.key === '.' && this.value.includes('.')) {
+                e.preventDefault();
+                return;
+            }
+            
+            // Only allow numbers and decimal point
+            if (!/[0-9.]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+            }
+        });
+        
+        // Format on blur for readability
         input.addEventListener('blur', function() {
             if (this.value && !isNaN(this.value)) {
                 const value = parseFloat(this.value);
-                if (this.id === 'property_price' && value >= 1000) {
-                    // Format large numbers with commas for readability
-                    this.setAttribute('data-formatted', value.toLocaleString());
+                
+                // Format large currency values
+                if ((this.id === 'property_price' || this.id === 'other_costs' || this.id === 'maintenance_repairs' || this.id === 'insurance_rates') && value >= 1000) {
+                    // Don't change the actual value, just add a data attribute for display
+                    this.setAttribute('title', '$' + value.toLocaleString());
+                }
+                
+                // Ensure minimum values
+                const min = parseFloat(this.getAttribute('min'));
+                if (!isNaN(min) && value < min) {
+                    this.value = min;
+                }
+                
+                // Ensure maximum values
+                const max = parseFloat(this.getAttribute('max'));
+                if (!isNaN(max) && value > max) {
+                    this.value = max;
                 }
             }
+            
+            // Validate required fields
+            this.classList.toggle('is-invalid', this.hasAttribute('required') && this.value.trim() === '');
+            this.classList.toggle('is-valid', this.hasAttribute('required') && this.value.trim() !== '' && !isNaN(this.value));
+        });
+        
+        // Focus handling for better UX
+        input.addEventListener('focus', function() {
+            this.select();
         });
     });
     

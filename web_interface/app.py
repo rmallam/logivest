@@ -37,7 +37,7 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze_property():
-    """Analyze a specific property"""
+    """Analyze a specific property using Gemini AI"""
     try:
         address = request.form.get('address', '').strip()
         budget = request.form.get('budget', type=float)
@@ -45,31 +45,22 @@ def analyze_property():
         if not address:
             return render_template('index.html', error="Please enter a property address")
         
-        # Get property data and analysis
+        # Use only Gemini AI analysis for comprehensive insights
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
         try:
-            property_data = loop.run_until_complete(data_client.get_property_data(address))
+            # Get comprehensive Gemini AI insights with all property details
+            gemini_insights = loop.run_until_complete(gemini_analyzer.analyze_property(address, budget))
             
-            if not property_data:
-                return render_template('index.html', error=f"Could not find property data for: {address}")
+            if not gemini_insights:
+                return render_template('index.html', error=f"Could not analyze property: {address}")
             
-            # Get basic property analysis
-            analysis = loop.run_until_complete(property_analyzer.analyze_property(property_data, budget))
-            
-            # Get comprehensive Gemini AI insights
-            gemini_insights = None
-            try:
-                gemini_insights = loop.run_until_complete(gemini_analyzer.analyze_property(address))
-            except Exception as e:
-                print(f"Gemini analysis failed: {str(e)}")
-                # Continue without Gemini insights
-            
+            # Use Gemini insights as the primary analysis
             return render_template('analysis.html', 
                                  address=address,
                                  budget=budget,
-                                 analysis=analysis,
+                                 analysis=None,  # No longer using old analyzer
                                  gemini_insights=gemini_insights)
         finally:
             loop.close()
@@ -348,7 +339,7 @@ def api_market_data(location):
 if __name__ == '__main__':
     # Use PORT environment variable for Render deployment, fallback to 5001 for local
     port = int(os.getenv('PORT', os.getenv('WEB_INTERFACE_PORT', 5001)))
-    print("🏠 Real Estate Investment Analyzer Web Interface")
+    print("🏠 Logivest - Real Estate Investment Analyzer Web Interface")
     print(f"🌐 Starting web server at http://localhost:{port}")
     print("📊 Access the application to analyze properties and markets")
     

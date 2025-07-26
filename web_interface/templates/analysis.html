@@ -8,12 +8,12 @@
         <div class="col-12 mb-4">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}" class="text-warning">Home</a></li>
                     <li class="breadcrumb-item active">Property Analysis</li>
                 </ol>
             </nav>
             <h1 class="display-6 fw-bold">
-                <i class="fas fa-home text-primary"></i> Property Analysis
+                <i class="fas fa-search-dollar me-2" style="color: #ffc107;"></i> Property Analysis
             </h1>
             <p class="lead text-muted">{{ address }}</p>
         </div>
@@ -22,23 +22,27 @@
     <div class="row">
         <!-- Property Details -->
         <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Property Details</h5>
+            <div class="card feature-card border-0">
+                <div class="card-header bg-gradient text-white" style="background: var(--primary-gradient); border-radius: 16px 16px 0 0;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i> Property Details</h5>
                 </div>
                 <div class="card-body">
+                    {% if gemini_insights %}
                     <div class="row">
                         <div class="col-sm-6">
-                            <p><strong>Type:</strong> {{ analysis.property_type.title() }}</p>
-                            <p><strong>Bedrooms:</strong> {{ analysis.bedrooms }}</p>
-                            <p><strong>Bathrooms:</strong> {{ analysis.bathrooms }}</p>
+                            <p><strong>Type:</strong> {{ gemini_insights.property_type }}</p>
+                            <p><strong>Bedrooms:</strong> {{ gemini_insights.bedrooms }}</p>
+                            <p><strong>Bathrooms:</strong> {{ gemini_insights.bathrooms }}</p>
                         </div>
                         <div class="col-sm-6">
-                            <p><strong>Square Feet:</strong> {{ "{:,}".format(analysis.sqft) }}</p>
-                            <p><strong>Est. Value:</strong> ${{ "{:,.0f}".format(analysis.estimated_value) }}</p>
-                            <p><strong>Est. Rent:</strong> ${{ "{:,.0f}".format(analysis.estimated_rent) }}/month</p>
+                            <p><strong>Land Size:</strong> {{ gemini_insights.land_size }}</p>
+                            <p><strong>Est. Value:</strong> ${{ "{:,.0f}".format(gemini_insights.estimated_value.estimate) }}</p>
+                            <p><strong>Price Range:</strong> ${{ "{:,.0f}".format(gemini_insights.estimated_value.min) }} - ${{ "{:,.0f}".format(gemini_insights.estimated_value.max) }}</p>
                         </div>
                     </div>
+                    {% else %}
+                    <p class="text-muted">Property analysis unavailable</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -50,124 +54,175 @@
                     <h5 class="mb-0"><i class="fas fa-star"></i> Investment Score</h5>
                 </div>
                 <div class="card-body text-center">
+                    {% if gemini_insights %}
                     <div class="display-1 fw-bold 
-                        {% if analysis.investment_score >= 8 %}text-success
-                        {% elif analysis.investment_score >= 6 %}text-warning
+                        {% if gemini_insights.investment_potential >= 8 %}text-success
+                        {% elif gemini_insights.investment_potential >= 6 %}text-warning
                         {% else %}text-danger{% endif %}">
-                        {{ analysis.investment_score }}/10
+                        {{ "%.1f"|format(gemini_insights.investment_potential) }}/10
                     </div>
-                    <p class="mt-3">{{ analysis.recommendation }}</p>
+                    <p class="mt-3">{{ gemini_insights.recommendation }}</p>
+                    {% else %}
+                    <div class="display-1 fw-bold text-muted">--/10</div>
+                    <p class="mt-3 text-muted">Analysis unavailable</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
+    {% if gemini_insights and gemini_insights.rent_to_emi_analysis %}
     <div class="row">
-        <!-- Yield Calculations -->
+        <!-- Rent to EMI Analysis -->
         <div class="col-lg-4 mb-4">
             <div class="card metric-card h-100">
                 <div class="card-body">
                     <h6 class="card-title text-primary">
-                        <i class="fas fa-percentage"></i> Rental Yields
+                        <i class="fas fa-percentage"></i> Rent to EMI Analysis
                     </h6>
                     <div class="mb-2">
-                        <small class="text-muted">Gross Yield</small>
-                        <div class="h4 {% if analysis.gross_yield >= 8 %}positive{% elif analysis.gross_yield >= 6 %}warning{% else %}negative{% endif %}">
-                            {{ "%.2f"|format(analysis.gross_yield) }}%
+                        <small class="text-muted">Monthly Rent</small>
+                        <div class="h4 text-info">
+                            ${{ "{:,.0f}".format(gemini_insights.rent_to_emi_analysis.monthly_rent) }}
                         </div>
                     </div>
                     <div class="mb-2">
-                        <small class="text-muted">Net Yield</small>
-                        <div class="h5 {% if analysis.net_yield >= 6 %}positive{% elif analysis.net_yield >= 4 %}warning{% else %}negative{% endif %}">
-                            {{ "%.2f"|format(analysis.net_yield) }}%
+                        <small class="text-muted">Monthly EMI</small>
+                        <div class="h4 text-warning">
+                            ${{ "{:,.0f}".format(gemini_insights.rent_to_emi_analysis.monthly_emi) }}
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Rent Coverage</small>
+                        <div class="h4 {{ gemini_insights.rent_to_emi_analysis.color }}">
+                            {{ "%.1f"|format(gemini_insights.rent_to_emi_analysis.ratio_percentage) }}%
+                        </div>
+                        <small>{{ gemini_insights.rent_to_emi_analysis.category }} - {{ gemini_insights.rent_to_emi_analysis.description }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market Overview -->
+        <div class="col-lg-4 mb-4">
+            <div class="card metric-card h-100">
+                <div class="card-body">
+                    <h6 class="card-title text-primary">
+                        <i class="fas fa-chart-line"></i> Market Overview
+                    </h6>
+                    <div class="mb-2">
+                        <small class="text-muted">Rental Yield</small>
+                        <div class="h4 {% if gemini_insights.market_overview.rental_yield >= 6 %}text-success{% elif gemini_insights.market_overview.rental_yield >= 4 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ "%.2f"|format(gemini_insights.market_overview.rental_yield) }}%
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Median Price</small>
+                        <div class="h5 text-primary">
+                            ${{ "{:,.0f}".format(gemini_insights.market_overview.median_price) }}
                         </div>
                     </div>
                     <div>
-                        <small class="text-muted">Cap Rate</small>
-                        <div class="h5 {% if analysis.cap_rate >= 6 %}positive{% elif analysis.cap_rate >= 4 %}warning{% else %}negative{% endif %}">
-                            {{ "%.2f"|format(analysis.cap_rate) }}%
+                        <small class="text-muted">Market Trend</small>
+                        <div class="h5 text-info">
+                            {{ gemini_insights.market_overview.get('trend', 'Stable') }}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Cash Flow Analysis -->
+        <!-- Investment Reasoning -->
         <div class="col-lg-4 mb-4">
             <div class="card metric-card h-100">
                 <div class="card-body">
                     <h6 class="card-title text-success">
-                        <i class="fas fa-money-bill-wave"></i> Cash Flow
+                        <i class="fas fa-lightbulb"></i> Investment Outlook
                     </h6>
                     <div class="mb-2">
-                        <small class="text-muted">Monthly Cash Flow</small>
-                        <div class="h4 {% if analysis.monthly_cashflow >= 0 %}positive{% else %}negative{% endif %}">
-                            ${{ "{:,.0f}".format(analysis.monthly_cashflow) }}
+                        <small class="text-muted">Market Outlook</small>
+                        <div class="h5 text-primary">
+                            {{ gemini_insights.market_outlook }}
                         </div>
                     </div>
                     <div class="mb-2">
-                        <small class="text-muted">Annual Cash Flow</small>
-                        <div class="h5 {% if analysis.annual_cashflow >= 0 %}positive{% else %}negative{% endif %}">
-                            ${{ "{:,.0f}".format(analysis.annual_cashflow) }}
+                        <small class="text-muted">Investment Reasoning</small>
+                        <div class="small text-muted">
+                            {{ gemini_insights.investment_reasoning[:150] }}{% if gemini_insights.investment_reasoning|length > 150 %}...{% endif %}
                         </div>
                     </div>
-                    <div>
-                        <small class="text-muted">Cash-on-Cash Return</small>
-                        <div class="h5 {% if analysis.cash_return >= 8 %}positive{% elif analysis.cash_return >= 4 %}warning{% else %}negative{% endif %}">
-                            {{ "%.2f"|format(analysis.cash_return) }}%
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Investment Timeline -->
-        <div class="col-lg-4 mb-4">
-            <div class="card metric-card h-100">
-                <div class="card-body">
-                    <h6 class="card-title text-info">
-                        <i class="fas fa-clock"></i> Investment Timeline
-                    </h6>
-                    <div class="mb-3">
-                        <small class="text-muted">Break-even Period</small>
-                        <div class="h4">
-                            {% if analysis.breakeven_months < 999 %}
-                                {{ analysis.breakeven_months }} months
-                            {% else %}
-                                Never
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="progress mb-2" style="height: 20px;">
-                        {% set progress = min((analysis.breakeven_months / 120) * 100, 100) if analysis.breakeven_months < 999 else 100 %}
-                        <div class="progress-bar 
-                            {% if analysis.breakeven_months <= 60 %}bg-success
-                            {% elif analysis.breakeven_months <= 120 %}bg-warning
-                            {% else %}bg-danger{% endif %}" 
-                            style="width: {{ progress }}%">
-                        </div>
-                    </div>
-                    <small class="text-muted">
-                        {% if analysis.breakeven_months <= 60 %}
-                            <i class="fas fa-check-circle text-success"></i> Excellent timeline
-                        {% elif analysis.breakeven_months <= 120 %}
-                            <i class="fas fa-clock text-warning"></i> Moderate timeline
-                        {% else %}
-                            <i class="fas fa-exclamation-triangle text-danger"></i> Long timeline
-                        {% endif %}
-                    </small>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 
-    <!-- Gemini AI Property Insights -->
+    {% if gemini_insights %}
+    <div class="row">
+        <!-- Key Features -->
+        <div class="col-lg-6 mb-4">
+            <div class="card feature-card border-0 h-100">
+                <div class="card-header bg-gradient text-white" style="background: var(--success-gradient); border-radius: 16px 16px 0 0;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-star me-2"></i> Key Features</h5>
+                </div>
+                <div class="card-body">
+                    {% if gemini_insights.key_features %}
+                    <ul class="list-unstyled">
+                        {% for feature in gemini_insights.key_features %}
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            {{ feature }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted">No key features identified</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Pros and Considerations -->
+        <div class="col-lg-6 mb-4">
+            <div class="card feature-card border-0 h-100">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #17a2b8, #0ea5e9); border-radius: 16px 16px 0 0;">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-balance-scale me-2"></i> Pros & Considerations</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-success"><i class="fas fa-thumbs-up"></i> Pros</h6>
+                    {% if gemini_insights.pros %}
+                    <ul class="list-unstyled mb-3">
+                        {% for pro in gemini_insights.pros %}
+                        <li class="mb-1">
+                            <i class="fas fa-plus-circle text-success me-2"></i>
+                            <small>{{ pro }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <h6 class="text-warning"><i class="fas fa-exclamation-triangle"></i> Considerations</h6>
+                    {% if gemini_insights.considerations %}
+                    <ul class="list-unstyled">
+                        {% for consideration in gemini_insights.considerations %}
+                        <li class="mb-1">
+                            <i class="fas fa-minus-circle text-warning me-2"></i>
+                            <small>{{ consideration }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     {% if gemini_insights %}
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-info shadow">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0"><i class="fas fa-brain"></i> AI Property Insights</h4>
+            <div class="card feature-card border-0">
+                <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 16px 16px 0 0;">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-brain me-2"></i> AI Property Insights</h4>
                     <small>Comprehensive analysis powered by Gemini AI</small>
                 </div>
                 <div class="card-body">
@@ -243,6 +298,16 @@
                         </div>
                     </div>
                     {% endif %}
+                    
+                    <!-- Raw Analysis -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6><i class="fas fa-file-alt"></i> Complete AI Analysis</h6>
+                            <div class="bg-light p-3 rounded">
+                                <small class="text-muted">{{ gemini_insights.raw_analysis }}</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -250,15 +315,15 @@
     {% endif %}
 
     <!-- Budget Warning -->
-    {% if budget and analysis.estimated_value > budget %}
+    {% if budget and gemini_insights and gemini_insights.estimated_value.estimate > budget %}
     <div class="row">
         <div class="col-12">
             <div class="alert alert-warning" role="alert">
                 <i class="fas fa-exclamation-triangle"></i>
                 <strong>Budget Exceeded:</strong> 
-                Property price (${{ "{:,.0f}".format(analysis.estimated_value) }}) 
+                Property price (${{ "{:,.0f}".format(gemini_insights.estimated_value.estimate) }}) 
                 exceeds your budget (${{ "{:,.0f}".format(budget) }}) by 
-                ${{ "{:,.0f}".format(analysis.estimated_value - budget) }}.
+                ${{ "{:,.0f}".format(gemini_insights.estimated_value.estimate - budget) }}.
             </div>
         </div>
     </div>
