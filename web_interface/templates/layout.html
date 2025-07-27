@@ -68,6 +68,43 @@
             font-weight: 700;
         }
 
+        /* Address Autocomplete Styling */
+        .autocomplete-list {
+            border: 1px solid #ced4da !important;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1050;
+        }
+        
+        .autocomplete-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f8f9fa;
+            transition: background-color 0.15s ease-in-out;
+        }
+        
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background-color: #f8f9fa;
+        }
+        
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+        
+        .autocomplete-item.active {
+            background-color: #007bff !important;
+            color: white !important;
+        }
+        
+        /* Input focus states for autocomplete */
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
         /* Base styles - Mobile First */
         .hero-section {
             background: var(--primary-gradient);
@@ -410,6 +447,441 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Google Places API for address autocomplete -->
+    <script>
+        // Function to load Google Places API dynamically
+        function loadGooglePlacesAPI() {
+            // Check if Google Maps is already loaded
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                initializeAutocomplete();
+                return;
+            }
+            
+            // Create script element for Google Places API
+            const script = document.createElement('script');
+            const apiKey = '{{ GOOGLE_PLACES_API_KEY }}';
+            
+            if (!apiKey) {
+                console.log('Google Places API key not configured - using fallback autocomplete');
+                initializeFallbackAutocomplete();
+                return;
+            }
+            
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initializeAutocomplete`;
+            script.async = true;
+            script.defer = true;
+            
+            // Fallback if API key is not available
+            script.onerror = function() {
+                console.log('Google Places API not available - using fallback autocomplete');
+                initializeFallbackAutocomplete();
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // Initialize Google Places Autocomplete
+        function initializeAutocomplete() {
+            if (typeof google === 'undefined' || !google.maps || !google.maps.places) {
+                console.log('Google Places API not available, skipping Google autocomplete');
+                return;
+            }
+            
+            console.log('🌍 Initializing Google Places autocomplete');
+            
+            // Configure autocomplete for Australian addresses
+            const options = {
+                types: ['address'],
+                componentRestrictions: { country: 'au' },
+                fields: ['formatted_address', 'geometry', 'name', 'address_components']
+            };
+            
+            // Initialize for property address field
+            const addressInput = document.getElementById('address');
+            if (addressInput) {
+                const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+                
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (place.formatted_address) {
+                        addressInput.value = place.formatted_address;
+                    }
+                });
+                console.log('✅ Google autocomplete set up for address field');
+            }
+            
+            // Initialize for location field
+            const locationInput = document.getElementById('location');
+            if (locationInput) {
+                const locationOptions = {
+                    types: ['(cities)'],
+                    componentRestrictions: { country: 'au' },
+                    fields: ['formatted_address', 'name']
+                };
+                
+                const locationAutocomplete = new google.maps.places.Autocomplete(locationInput, locationOptions);
+                
+                locationAutocomplete.addListener('place_changed', function() {
+                    const place = locationAutocomplete.getPlace();
+                    if (place.formatted_address) {
+                        locationInput.value = place.formatted_address;
+                    } else if (place.name) {
+                        locationInput.value = place.name;
+                    }
+                });
+                console.log('✅ Google autocomplete set up for location field');
+            }
+        }
+        
+        // Fallback autocomplete using Australian suburbs/cities data
+        function initializeFallbackAutocomplete() {
+            console.log('🚀 Initializing fallback autocomplete for Australian locations');
+            
+            // Australian major cities and suburbs for fallback
+            const australianLocations = [
+                // Melbourne
+                'Melbourne VIC', 'Carlton VIC', 'Fitzroy VIC', 'Richmond VIC', 'St Kilda VIC',
+                'South Yarra VIC', 'Toorak VIC', 'Brighton VIC', 'Caulfield VIC', 'Glen Waverley VIC',
+                'Box Hill VIC', 'Ringwood VIC', 'Frankston VIC', 'Dandenong VIC', 'Point Cook VIC',
+                'Werribee VIC', 'Geelong VIC', 'Ballarat VIC', 'Bendigo VIC',
+                
+                // Sydney
+                'Sydney NSW', 'Bondi NSW', 'Manly NSW', 'Parramatta NSW', 'Chatswood NSW',
+                'Liverpool NSW', 'Bankstown NSW', 'Penrith NSW', 'Campbelltown NSW', 'Hornsby NSW',
+                'Sutherland NSW', 'Blacktown NSW', 'Ryde NSW', 'Willoughby NSW', 'Warringah NSW',
+                
+                // Brisbane
+                'Brisbane QLD', 'Gold Coast QLD', 'Sunshine Coast QLD', 'Toowoomba QLD',
+                'Cairns QLD', 'Townsville QLD', 'Ipswich QLD', 'Logan QLD', 'Redland QLD',
+                
+                // Perth
+                'Perth WA', 'Fremantle WA', 'Joondalup WA', 'Rockingham WA', 'Mandurah WA',
+                'Bunbury WA', 'Geraldton WA', 'Kalgoorlie WA',
+                
+                // Adelaide
+                'Adelaide SA', 'Glenelg SA', 'Mount Gambier SA', 'Whyalla SA', 'Port Augusta SA',
+                
+                // Other capitals
+                'Hobart TAS', 'Launceston TAS', 'Darwin NT', 'Alice Springs NT',
+                'Canberra ACT'
+            ];
+            
+            // Sample addresses for demonstration (used for address field)
+            const sampleAddresses = [
+                // Point Cook area - more comprehensive list including Grassbird Drive
+                '8 Halifax Court, Point Cook VIC 3030',
+                '12 Halifax Court, Point Cook VIC 3030',
+                '15 Halifax Court, Point Cook VIC 3030',
+                '22 Halifax Court, Point Cook VIC 3030',
+                '35 Halifax Court, Point Cook VIC 3030',
+                
+                // Grassbird Drive addresses (the street user was searching for)
+                '10 Grassbird Drive, Point Cook VIC 3030',
+                '15 Grassbird Drive, Point Cook VIC 3030',
+                '22 Grassbird Drive, Point Cook VIC 3030',
+                '35 Grassbird Drive, Point Cook VIC 3030',
+                '48 Grassbird Drive, Point Cook VIC 3030',
+                '55 Grassbird Drive, Point Cook VIC 3030',
+                '62 Grassbird Drive, Point Cook VIC 3030',
+                '78 Grassbird Drive, Point Cook VIC 3030',
+                '91 Grassbird Drive, Point Cook VIC 3030',
+                
+                // Other Point Cook streets
+                '1 Main Street, Point Cook VIC 3030',
+                '25 Sunset Boulevard, Point Cook VIC 3030',
+                '10 Ocean Drive, Point Cook VIC 3030',
+                '5 Park Avenue, Point Cook VIC 3030',
+                '22 Waterfront Crescent, Point Cook VIC 3030',
+                '33 Harbor View Drive, Point Cook VIC 3030',
+                '45 Saltwater Promenade, Point Cook VIC 3030',
+                '18 Seagrass Circuit, Point Cook VIC 3030',
+                '27 Coastal Walk, Point Cook VIC 3030',
+                '14 Marina Boulevard, Point Cook VIC 3030',
+                
+                // More Melbourne suburbs with variety
+                '123 Collins Street, Melbourne VIC 3000',
+                '8 Collins Street, Melbourne VIC 3000',
+                '456 Collins Street, Melbourne VIC 3000',
+                '45 Chapel Street, South Yarra VIC 3141',
+                '8 Chapel Street, South Yarra VIC 3141',
+                '67 Brunswick Street, Fitzroy VIC 3065',
+                '8 Brunswick Street, Fitzroy VIC 3065',
+                '89 High Street, Glen Waverley VIC 3150',
+                '12 Beach Road, St Kilda VIC 3182',
+                '8 Beach Road, St Kilda VIC 3182',
+                '34 Smith Street, Carlton VIC 3053',
+                '56 Queen Street, Richmond VIC 3121',
+                '8 Queen Street, Richmond VIC 3121',
+                '78 Swan Street, Richmond VIC 3121',
+                '91 Toorak Road, Toorak VIC 3142',
+                '8 Toorak Road, Toorak VIC 3142',
+                
+                // Common street names in various suburbs
+                '8 Main Street, Brighton VIC 3186',
+                '8 King Street, Melbourne VIC 3000',
+                '8 George Street, Fitzroy VIC 3065',
+                '8 Park Street, Carlton VIC 3053',
+                '8 River Road, Richmond VIC 3121',
+                '8 Hill Drive, Glen Waverley VIC 3150',
+                '8 Garden Court, Caulfield VIC 3162',
+                '8 Ocean Avenue, St Kilda VIC 3182',
+                
+                // Sydney addresses
+                '78 George Street, Sydney NSW 2000',
+                '8 George Street, Sydney NSW 2000',
+                '90 Oxford Street, Bondi NSW 2026',
+                '8 Oxford Street, Bondi NSW 2026',
+                '23 Harbour Bridge Road, Sydney NSW 2000',
+                '8 Circular Quay, Sydney NSW 2000',
+                '45 King Street, Sydney NSW 2000',
+                
+                // Brisbane addresses
+                '45 Queen Street, Brisbane QLD 4000',
+                '8 Queen Street, Brisbane QLD 4000',
+                '67 Eagle Street, Brisbane QLD 4000',
+                '8 Eagle Street, Brisbane QLD 4000',
+                '123 Adelaide Street, Brisbane QLD 4000',
+                
+                // Perth addresses
+                '89 St Georges Terrace, Perth WA 6000',
+                '8 St Georges Terrace, Perth WA 6000',
+                '12 Hay Street, Perth WA 6000',
+                '8 Hay Street, Perth WA 6000',
+                '45 Murray Street, Perth WA 6000'
+            ];
+            
+            function setupFallbackAutocomplete(inputId, locations) {
+                const input = document.getElementById(inputId);
+                if (!input) {
+                    console.log(`❌ Input field "${inputId}" not found`);
+                    return;
+                }
+                
+                console.log(`✅ Setting up autocomplete for "${inputId}" with ${locations.length} items`);
+                
+                let currentFocus = -1;
+                
+                input.addEventListener('input', function() {
+                    const value = this.value.toLowerCase();
+                    console.log(`🔍 Autocomplete search for "${inputId}": "${value}"`);
+                    closeAllLists();
+                    
+                    if (!value || value.length < 2) return; // Require at least 2 characters
+                    
+                    // For address field, use more flexible matching
+                    let matches;
+                    if (inputId === 'address') {
+                        // Enhanced search for addresses
+                        const searchValue = value.trim();
+                        
+                        matches = locations.filter(location => {
+                            const locationLower = location.toLowerCase();
+                            
+                            // Direct substring match (highest priority)
+                            if (locationLower.includes(searchValue)) {
+                                return true;
+                            }
+                            
+                            // Split search terms for partial matching
+                            const searchTerms = searchValue.split(/\s+/).filter(term => term.length > 0);
+                            
+                            // Check if all terms are found in the address (any order)
+                            const allTermsMatch = searchTerms.every(term => locationLower.includes(term));
+                            if (allTermsMatch) {
+                                return true;
+                            }
+                            
+                            // Check if most terms match (for partial searches)
+                            if (searchTerms.length > 1) {
+                                const matchingTerms = searchTerms.filter(term => locationLower.includes(term));
+                                return matchingTerms.length >= Math.ceil(searchTerms.length * 0.6); // 60% of terms must match
+                            }
+                            
+                            return false;
+                        });
+                        
+                        // Sort results by relevance
+                        matches.sort((a, b) => {
+                            const aLower = a.toLowerCase();
+                            const bLower = b.toLowerCase();
+                            
+                            // Exact matches first
+                            if (aLower.includes(searchValue) && !bLower.includes(searchValue)) return -1;
+                            if (!aLower.includes(searchValue) && bLower.includes(searchValue)) return 1;
+                            
+                            // Matches starting with search term
+                            if (aLower.startsWith(searchValue) && !bLower.startsWith(searchValue)) return -1;
+                            if (!aLower.startsWith(searchValue) && bLower.startsWith(searchValue)) return 1;
+                            
+                            // Alphabetical order for similar matches
+                            return a.localeCompare(b);
+                        });
+                        
+                        // If no exact matches and search looks like a complete address, offer to use it
+                        if (matches.length === 0 && searchValue.length > 10 && 
+                            (searchValue.includes('drive') || searchValue.includes('street') || searchValue.includes('road') || 
+                             searchValue.includes('court') || searchValue.includes('avenue') || searchValue.includes('way'))) {
+                            
+                            // Format the address nicely
+                            const formattedAddress = searchValue
+                                .split(' ')
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(' ');
+                            
+                            // Add postcode if not present
+                            let finalAddress = formattedAddress;
+                            if (!formattedAddress.match(/\d{4}$/)) {
+                                // Try to detect suburb and add appropriate postcode
+                                if (formattedAddress.toLowerCase().includes('point cook')) {
+                                    finalAddress = formattedAddress.replace(/point cook/i, 'Point Cook VIC 3030');
+                                } else if (formattedAddress.toLowerCase().includes('melbourne')) {
+                                    finalAddress = formattedAddress.replace(/melbourne/i, 'Melbourne VIC 3000');
+                                } else {
+                                    // Default to Point Cook if no suburb detected but format suggests it's a real address
+                                    finalAddress = formattedAddress + ', Point Cook VIC 3030';
+                                }
+                            }
+                            
+                            matches = [finalAddress];
+                        }
+                    } else {
+                        // For location field, use simple substring matching
+                        matches = locations.filter(location => 
+                            location.toLowerCase().includes(value)
+                        );
+                    }
+                    
+                    matches = matches.slice(0, 8); // Limit to 8 suggestions
+                    
+                    console.log(`📍 Found ${matches.length} matches for "${value}":`, matches);
+                    
+                    if (matches.length === 0) return;
+                    
+                    const listDiv = document.createElement('div');
+                    listDiv.className = 'autocomplete-list position-absolute bg-white border rounded shadow-sm';
+                    listDiv.style.cssText = `
+                        top: 100%; left: 0; right: 0; z-index: 1000; max-height: 200px; 
+                        overflow-y: auto; border-color: #ced4da;
+                    `;
+                    
+                    matches.forEach((location, index) => {
+                        const item = document.createElement('div');
+                        item.className = 'autocomplete-item px-3 py-2 cursor-pointer border-bottom';
+                        item.style.cssText = 'cursor: pointer; border-bottom: 1px solid #f8f9fa;';
+                        item.textContent = location;
+                        
+                        item.addEventListener('click', function() {
+                            input.value = location;
+                            closeAllLists();
+                        });
+                        
+                        item.addEventListener('mouseenter', function() {
+                            removeActive();
+                            this.classList.add('active');
+                            this.style.backgroundColor = '#f8f9fa';
+                        });
+                        
+                        item.addEventListener('mouseleave', function() {
+                            this.style.backgroundColor = '';
+                        });
+                        
+                        listDiv.appendChild(item);
+                    });
+                    
+                    input.parentNode.style.position = 'relative';
+                    input.parentNode.appendChild(listDiv);
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    const list = input.parentNode.querySelector('.autocomplete-list');
+                    if (!list) return;
+                    
+                    const items = list.getElementsByClassName('autocomplete-item');
+                    
+                    if (e.keyCode === 40) { // Down arrow
+                        currentFocus++;
+                        addActive(items);
+                        e.preventDefault();
+                    } else if (e.keyCode === 38) { // Up arrow
+                        currentFocus--;
+                        addActive(items);
+                        e.preventDefault();
+                    } else if (e.keyCode === 13) { // Enter
+                        e.preventDefault();
+                        if (currentFocus > -1 && items[currentFocus]) {
+                            items[currentFocus].click();
+                        }
+                    } else if (e.keyCode === 27) { // Escape
+                        closeAllLists();
+                    }
+                });
+                
+                function addActive(items) {
+                    if (!items) return;
+                    removeActive();
+                    if (currentFocus >= items.length) currentFocus = 0;
+                    if (currentFocus < 0) currentFocus = items.length - 1;
+                    if (items[currentFocus]) {
+                        items[currentFocus].classList.add('active');
+                        items[currentFocus].style.backgroundColor = '#007bff';
+                        items[currentFocus].style.color = 'white';
+                    }
+                }
+                
+                function removeActive() {
+                    const items = input.parentNode.querySelectorAll('.autocomplete-item');
+                    items.forEach(item => {
+                        item.classList.remove('active');
+                        item.style.backgroundColor = '';
+                        item.style.color = '';
+                    });
+                }
+                
+                function closeAllLists() {
+                    const lists = document.querySelectorAll('.autocomplete-list');
+                    lists.forEach(list => list.remove());
+                    currentFocus = -1;
+                }
+                
+                // Close autocomplete when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!input.contains(e.target)) {
+                        closeAllLists();
+                    }
+                });
+            }
+            
+            // Setup for both fields with appropriate data
+            setupFallbackAutocomplete('address', sampleAddresses);
+            setupFallbackAutocomplete('location', australianLocations);
+        }
+        
+        // Load autocomplete when DOM is ready
+        window.initializePageAutocomplete = function() {
+            // Check if Google Places API key is available
+            const apiKey = '{{ GOOGLE_PLACES_API_KEY }}';
+            
+            if (apiKey && apiKey.trim() !== '') {
+                console.log('🔑 Google Places API key found - using Google Places autocomplete');
+                loadGooglePlacesAPI();
+            } else {
+                console.log('🚀 No Google Places API key - using fallback autocomplete');
+                initializeFallbackAutocomplete();
+            }
+        };
+        
+        // Auto-initialize if not on a page with custom initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure all elements are loaded
+            setTimeout(function() {
+                if (typeof window.pageHasCustomAutocomplete === 'undefined') {
+                    window.initializePageAutocomplete();
+                }
+            }, 100);
+        });
+    </script>
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>

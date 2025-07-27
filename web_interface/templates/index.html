@@ -204,8 +204,25 @@
 </div>
 
 <script>
+// Mark that this page has custom autocomplete
+window.pageHasCustomAutocomplete = true;
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, setting up button event listeners...');
+    console.log('Index page DOM loaded, setting up button event listeners...');
+    
+    // Initialize autocomplete for this page
+    if (typeof window.initializePageAutocomplete === 'function') {
+        window.initializePageAutocomplete();
+        console.log('Autocomplete initialized for index page');
+    } else {
+        console.log('Autocomplete function not available yet, retrying...');
+        setTimeout(function() {
+            if (typeof window.initializePageAutocomplete === 'function') {
+                window.initializePageAutocomplete();
+                console.log('Autocomplete initialized after delay');
+            }
+        }, 200);
+    }
     
     // Function to scroll to specific sections
     function scrollToSection(sectionId) {

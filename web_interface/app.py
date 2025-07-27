@@ -8,6 +8,10 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for
 import asyncio
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Add the parent directory to the path so we can import our MCP server modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,7 +23,7 @@ from mcp_server.tools.gemini_analyzer import GeminiPropertyAnalyzer
 from mcp_server.data.api_clients import RealEstateDataClient
 
 app = Flask(__name__)
-app.secret_key = 'real-estate-analyzer-secret-key'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'real-estate-analyzer-secret-key')
 
 # Initialize components
 property_analyzer = PropertyAnalyzer()
@@ -27,6 +31,14 @@ financial_calculator = FinancialCalculator()
 market_researcher = MarketResearcher()
 gemini_analyzer = GeminiPropertyAnalyzer()
 data_client = RealEstateDataClient()
+
+
+@app.context_processor
+def inject_config():
+    """Make configuration variables available to all templates"""
+    return {
+        'GOOGLE_PLACES_API_KEY': os.getenv('GOOGLE_PLACES_API_KEY', '')
+    }
 
 
 @app.route('/')
