@@ -6,6 +6,6 @@ metadata:
     github.com/project-slug: rmallam/logivest
 spec:
   type: other
-  owner: rmallam
+  owner: CNCF
   lifecycle: unknown
 
