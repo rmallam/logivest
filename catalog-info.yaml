@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: logivest
+  annotations:
+    github.com/project-slug: rmallam/logivest
+spec:
+  type: other
+  lifecycle: unknown
